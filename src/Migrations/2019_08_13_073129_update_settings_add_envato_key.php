@@ -19,7 +19,7 @@ class UpdateSettingsAddEnvatoKey extends Migration
 
         Schema::table($settingTable, function (Blueprint $table) use ($settingTable) {
             if (!Schema::hasColumn($settingTable, 'purchase_code')) {
-                $table->timestamp('purchase_code')->nullable();
+                $table->string('purchase_code', 80)->nullable();
             }
         });
 
