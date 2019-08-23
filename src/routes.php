@@ -2,13 +2,8 @@
 
 Route::group(['namespace' => 'Froiden\Envato\Controllers'], function () {
 
-    Route::get('verify-purchase', [
-        'uses' => 'PurchaseVerificationController@verifyPurchase'
-    ])->name('verify-purchase');
-
-    Route::post('purchase-verified', [
-        'uses' => 'PurchaseVerificationController@purchaseVerified'
-    ])->name('purchase-verified');
+    Route::get('verify-purchase', ['uses' => 'PurchaseVerificationController@verifyPurchase'])->name('verify-purchase');
+    Route::post('purchase-verified', ['uses' => 'PurchaseVerificationController@purchaseVerified'])->name('purchase-verified');
 
     // update script version
     Route::group(['as' => 'admin.'], function () {
