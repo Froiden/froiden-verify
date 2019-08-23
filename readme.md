@@ -17,7 +17,7 @@ Following changes to be made
         composer require froiden/envato
     
 ## Publish files
-        php vendor:publish --provider="Froiden\Envato\FroidenEnvatoServiceProvider"
+        php artisan vendor:publish --provider="Froiden\Envato\FroidenEnvatoServiceProvider"
     
 ## Command to run for creating new version
         php artisan script:version {version}
