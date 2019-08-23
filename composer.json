@@ -7,16 +7,21 @@
             "email": "rajesh@froiden.com"
         }
     ],
-  "require-dev": {
-    "zanysoft/laravel-zip": "^1.0"
-  },
-  "minimum-stability": "dev",
-  "require": {},
+    "require-dev": {
+        "zanysoft/laravel-zip": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Froiden\\Envato\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {},
     "extra": {
         "laravel": {
-          "providers": [
-            "Froiden\\Envato\\FroidenEnvatoServiceProvider"
-          ]
+            "providers": [
+                "Froiden\\Envato\\FroidenEnvatoServiceProvider"
+            ]
         }
     }
 }
