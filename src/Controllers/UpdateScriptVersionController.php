@@ -6,6 +6,7 @@ use Froiden\Envato\Helpers\Reply;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use ZanySoft\Zip\Zip;
@@ -236,7 +237,7 @@ class UpdateScriptVersionController extends Controller
     public function checkIfFileExtracted(){
         $status =  File::get(public_path().'/install-version.txt');
 
-        if($status == 'pending'){
+        if($status == 'complete'){
 
             Artisan::call('migrate', array('--force' => true)); //migrate database
 
@@ -245,6 +246,8 @@ class UpdateScriptVersionController extends Controller
             $lastVersionInfo = $this->getLastVersion();
             $this->setCurrentVersion($lastVersionInfo['version']); //update system version
 
+            //logout user after installing update
+            Auth::logout();
             return Reply::success('Installed successfully.');
         }
     }
