@@ -14,7 +14,7 @@ Following changes to be made
 
 ## Installation
 
-        composer require froiden/froiden-envato
+        composer require froiden/envato
     
 ## Publish files
         php vendor:publish --provider="Froiden\Envato\FroidenEnvatoServiceProvider"
