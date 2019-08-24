@@ -31,7 +31,7 @@ class EnvatoUpdate {
         } catch (\Exception $e) {
 
         }
-        $updateVersionInfo['worksuiteVersion'] = File::get('version.txt');
+        $updateVersionInfo['appVersion'] = File::get('version.txt');
 
         $laravel = app();
         $updateVersionInfo['laravelVersion'] = $laravel::VERSION;
