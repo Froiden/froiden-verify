@@ -248,6 +248,8 @@ class UpdateScriptVersionController extends Controller
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('cache:clear');
+        Artisan::call('cache:clear');
+        echo exec('rm -f storage/framework/sessions/*');
     }
 
     public function updateDatabase()
