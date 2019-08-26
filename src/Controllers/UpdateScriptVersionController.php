@@ -86,6 +86,8 @@ class UpdateScriptVersionController extends Controller
 
         // extract whole archive
         $zip->extract(base_path());
+
+        return Reply::success('Zip extracted successfully. Now installing...');
     }
 
     /*
@@ -248,8 +250,7 @@ class UpdateScriptVersionController extends Controller
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('cache:clear');
-        Artisan::call('cache:clear');
-        echo exec('rm -f storage/framework/sessions/*');
+        echo exec('rm -rf '.storage_path('framework/sessions/*'));
     }
 
     public function updateDatabase()

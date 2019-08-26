@@ -32,6 +32,7 @@
                             downloadScript();
                             downloadPercent();
                         }
+
                     }
                 });
             }
@@ -81,6 +82,9 @@
             url: '{!! route("admin.updateVersion.checkIfFileExtracted") !!}',
             success: function (response) {
                 checkInstall = false;
+                if(response.status == 'success'){
+                    window.location.reload();
+                }
             }
         });
     }
@@ -104,7 +108,9 @@
             type: 'GET',
             url: '{!! route("admin.updateVersion.install") !!}',
             success: function (response) {
-                window.location.reload();
+                if(response.status == 'success'){
+                    window.location.reload();
+                }
             }
         });
     }
