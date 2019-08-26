@@ -15,55 +15,56 @@ class UpdateScriptVersionController extends Controller
 {
     private $tmp_backup_dir = null;
 
-    private function checkPermission(){
-
+    private function checkPermission()
+    {
         return config('froiden_envato.allow_users_id');
     }
+
     /*
     * Download and Install Update.
     */
     public function update()
     {
-        if( ! $this->checkPermission() ){
+        if (!$this->checkPermission()) {
             return Reply::error("ACTION NOT ALLOWED.");
         }
 
         $lastVersionInfo = $this->getLastVersion();
 
-        if ( $lastVersionInfo['version'] <= $this->getCurrentVersion() ){
+        if ($lastVersionInfo['version'] <= $this->getCurrentVersion()) {
             return Reply::error("Your System IS ALREADY UPDATED to latest version !");
         }
 
-        try{
-            $this->tmp_backup_dir = base_path().'/backup_'.date('Ymd');
+        try {
+            $this->tmp_backup_dir = base_path() . '/backup_' . date('Ymd');
 
             $lastVersionInfo = $this->getLastVersion();
 
             $update_name = $lastVersionInfo['archive'];
 
-            $filename_tmp = config('froiden_envato.tmp_path').'/'.$update_name;
+            $filename_tmp = config('froiden_envato.tmp_path') . '/' . $update_name;
 
 
-            if(file_exists($filename_tmp)){
+            if (file_exists($filename_tmp)) {
                 File::delete($filename_tmp); //delete old file if exist
             }
 
-            File::put(public_path().'/install-version.txt', 'complete');
+            File::put(public_path() . '/install-version.txt', 'complete');
 
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
 
 
             $status = $this->install($lastVersionInfo['version'], $update_path, $lastVersionInfo['archive']);
 
-            if($status){
+            if ($status) {
 
                 echo '<p>&raquo; SYSTEM Mantence Mode => OFF</p>';
-                echo '<p class="text-success">SYSTEM IS NOW UPDATED TO VERSION: '.$lastVersionInfo['version'].'</p>';
+                echo '<p class="text-success">SYSTEM IS NOW UPDATED TO VERSION: ' . $lastVersionInfo['version'] . '</p>';
                 echo '<p style="font-weight: bold;">RELOAD YOUR BROWSER TO SEE CHANGES</p>';
-            }else
+            } else
                 throw new \Exception("Error during updating.");
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             echo '<p>ERROR DURING UPDATE (!!check the update archive!!) --TRY to restore OLD status ........... ';
 
             $this->restore();
@@ -74,27 +75,17 @@ class UpdateScriptVersionController extends Controller
 
     public function install()
     {
+        if (!$this->checkPermission()) {
+            return Reply::error("ACTION NOT ALLOWED.");
+        }
         $lastVersionInfo = $this->getLastVersion();
         $archive = $lastVersionInfo['archive'];
-        $update_path = config('froiden_envato.tmp_path').'/'.$archive;
+        $update_path = config('froiden_envato.tmp_path') . '/' . $archive;
 
         $zip = Zip::open($update_path);
 
         // extract whole archive
         $zip->extract(base_path());
-
-//        try{
-//
-//            Artisan::call('view:clear'); //clear compiled files
-//
-//            Artisan::call('migrate', array('--force' => true)); //migrate database
-//
-//            $this->setCurrentVersion($lastVersionInfo['version']); //update system version
-//
-//            return Reply::success('Installed successfully.');
-//
-//        }catch (\Exception $e) { return Reply::error('Error while installing'); }
-
     }
 
     /*
@@ -103,15 +94,18 @@ class UpdateScriptVersionController extends Controller
     public function download(Request $request)
     {
 
-        File::put(public_path().'/percent-download.txt', '');
+        if (!$this->checkPermission()) {
+            return Reply::error("ACTION NOT ALLOWED.");
+        }
+        File::put(public_path() . '/percent-download.txt', '');
 
         $lastVersionInfo = $this->getLastVersion();
 
         $update_name = $lastVersionInfo['archive'];
 
-        $filename_tmp = config('froiden_envato.tmp_path').'/'.$update_name;
+        $filename_tmp = config('froiden_envato.tmp_path') . '/' . $update_name;
 
-        $downloadRemoteUrl = config('froiden_envato.update_baseurl').'/'.$update_name;
+        $downloadRemoteUrl = config('froiden_envato.update_baseurl') . '/' . $update_name;
 
         $dlHandler = fopen($filename_tmp, 'w');
 
@@ -119,8 +113,8 @@ class UpdateScriptVersionController extends Controller
         $client->request('GET', $downloadRemoteUrl, [
             'sink' => $dlHandler,
             'progress' => function ($dl_total_size, $dl_size_so_far, $ul_total_size, $ul_size_so_far) {
-                $percentDownloaded = ($dl_total_size > 0) ? (($dl_size_so_far/$dl_total_size)*100) : 0;
-                File::put(public_path().'/percent-download.txt', $percentDownloaded);
+                $percentDownloaded = ($dl_total_size > 0) ? (($dl_size_so_far / $dl_total_size) * 100) : 0;
+                File::put(public_path() . '/percent-download.txt', $percentDownloaded);
             },
             'verify' => false
         ]);
@@ -132,8 +126,9 @@ class UpdateScriptVersionController extends Controller
     /*
     * Return current version (as plain text).
     */
-    public function getCurrentVersion(){
-        $version = File::get(public_path().'/version.txt');
+    public function getCurrentVersion()
+    {
+        $version = File::get(public_path() . '/version.txt');
         return $version;
     }
 
@@ -150,11 +145,13 @@ class UpdateScriptVersionController extends Controller
         return '';
     }
 
-    private function setCurrentVersion($last){
-        File::put(public_path().'/version.txt', $last); //UPDATE $current_version to last version
+    private function setCurrentVersion($last)
+    {
+        File::put(public_path() . '/version.txt', $last); //UPDATE $current_version to last version
     }
 
-    private function getLastVersion(){
+    private function getLastVersion()
+    {
         $client = new Client();
         $res = $client->request('GET', config('froiden_envato.updater_file_path'), ['verify' => false]);
         $lastVersion = $res->getBody();
@@ -163,34 +160,36 @@ class UpdateScriptVersionController extends Controller
         return $content; //['version' => $v, 'archive' => 'RELEASE-$v.zip', 'description' => 'plain text...'];
     }
 
-    private function backup($filename){
+    private function backup($filename)
+    {
         $backup_dir = $this->tmp_backup_dir;
 
-        if ( !is_dir($backup_dir) ) File::makeDirectory($backup_dir, $mode = 0755, true, true);
-        if ( !is_dir($backup_dir.'/'.dirname($filename)) ) File::makeDirectory($backup_dir.'/'.dirname($filename), $mode = 0755, true, true);
+        if (!is_dir($backup_dir)) File::makeDirectory($backup_dir, $mode = 0755, true, true);
+        if (!is_dir($backup_dir . '/' . dirname($filename))) File::makeDirectory($backup_dir . '/' . dirname($filename), $mode = 0755, true, true);
 
-        File::copy(base_path().'/'.$filename, $backup_dir.'/'.$filename); //to backup folder
+        File::copy(base_path() . '/' . $filename, $backup_dir . '/' . $filename); //to backup folder
     }
 
-    private function restore(){
-        if( !isset($this->tmp_backup_dir) )
-            $this->tmp_backup_dir = base_path().'/backup_'.date('Ymd');
+    private function restore()
+    {
+        if (!isset($this->tmp_backup_dir))
+            $this->tmp_backup_dir = base_path() . '/backup_' . date('Ymd');
 
-        try{
+        try {
             $backup_dir = $this->tmp_backup_dir;
             $backup_files = File::allFiles($backup_dir);
 
-            foreach ($backup_files as $file){
+            foreach ($backup_files as $file) {
                 $filename = (string)$file;
-                $filename = substr($filename, (strlen($filename)-strlen($backup_dir)-1)*(-1));
-                echo $backup_dir.'/'.$filename." => ".base_path().'/'.$filename;
-                File::copy($backup_dir.'/'.$filename, base_path().'/'.$filename); //to respective folder
+                $filename = substr($filename, (strlen($filename) - strlen($backup_dir) - 1) * (-1));
+                echo $backup_dir . '/' . $filename . " => " . base_path() . '/' . $filename;
+                File::copy($backup_dir . '/' . $filename, base_path() . '/' . $filename); //to respective folder
             }
 
-        }catch(\Exception $e) {
-            echo "Exception => ".$e->getMessage();
+        } catch (\Exception $e) {
+            echo "Exception => " . $e->getMessage();
             echo "<BR>[ FAILED ]";
-            echo "<BR> Backup folder is located in: <i>".$backup_dir."</i>.";
+            echo "<BR> Backup folder is located in: <i>" . $backup_dir . "</i>.";
             echo "<BR> Remember to restore System UP-Status through shell command: <i>php artisan up</i>.";
             return false;
         }
@@ -201,43 +200,34 @@ class UpdateScriptVersionController extends Controller
 
     public function formatSizeUnits($bytes)
     {
-        if ($bytes >= 1073741824)
-        {
+        if ($bytes >= 1073741824) {
             $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        elseif ($bytes >= 1048576)
-        {
+        } elseif ($bytes >= 1048576) {
             $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        }
-        elseif ($bytes >= 1024)
-        {
+        } elseif ($bytes >= 1024) {
             $bytes = number_format($bytes / 1024, 2) . ' KB';
-        }
-        elseif ($bytes > 1)
-        {
+        } elseif ($bytes > 1) {
             $bytes = $bytes . ' bytes';
-        }
-        elseif ($bytes == 1)
-        {
+        } elseif ($bytes == 1) {
             $bytes = $bytes . ' byte';
-        }
-        else
-        {
+        } else {
             $bytes = '0 bytes';
         }
 
         return $bytes;
     }
 
-    public function downloadPercent(Request $request){
-        $percent =  File::get(public_path().'/percent-download.txt');
+    public function downloadPercent(Request $request)
+    {
+        $percent = File::get(public_path() . '/percent-download.txt');
         return $percent;
     }
 
-    public function checkIfFileExtracted(){
-        $status =  File::get(public_path().'/install-version.txt');
+    public function checkIfFileExtracted()
+    {
+        $status = File::get(public_path() . '/install-version.txt');
 
-        if($status == 'complete'){
+        if ($status == 'complete') {
 
             Artisan::call('migrate', array('--force' => true)); //migrate database
 
@@ -260,7 +250,8 @@ class UpdateScriptVersionController extends Controller
         Artisan::call('cache:clear');
     }
 
-    public function updateDatabase(){
+    public function updateDatabase()
+    {
         Artisan::call('migrate', array('--force' => true));
         return 'Database updated successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
     }
