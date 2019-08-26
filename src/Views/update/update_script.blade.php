@@ -27,9 +27,11 @@
                     type: 'GET',
                     url: '{!! route("admin.updateVersion.update") !!}',
                     success: function (response) {
-                        updateAreaDiv.html("<strong>What's New:-</strong><br> " + response.description);
-                        downloadScript();
-                        downloadPercent();
+                        if(response.status =='success'){
+                            updateAreaDiv.html("<strong>What's New:-</strong><br> " + response.description);
+                            downloadScript();
+                            downloadPercent();
+                        }
                     }
                 });
             }

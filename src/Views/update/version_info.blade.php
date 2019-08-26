@@ -15,9 +15,13 @@
             <td>Laravel Version <span
                         class="pull-right">{{ $updateVersionInfo['laravelVersion'] }}</span></td>
         </tr>
-        <tr>
-            <td>PHP Version <span class="pull-right">{{ phpversion() }}</span></td>
-        </tr>
+        <td>PHP Version
+            @if (version_compare(PHP_VERSION, '7.1.0') > 0)
+                <span class="pull-right">{{ phpversion() }} <i class="fa fa fa-check-circle text-success"></i></span>
+            @else
+                <span class="pull-right">{{ phpversion() }} <i  data-toggle="tooltip" data-original-title="@lang('messages.phpUpdateRequired')" class="fa fa fa-warning text-danger"></i></span>
+            @endif
+        </td>
         @if(!is_null($envatoUpdateCompanySetting->purchase_code))
             <tr>
                 <td>Envato Purchase code <span
