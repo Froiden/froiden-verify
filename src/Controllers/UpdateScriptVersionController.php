@@ -49,8 +49,6 @@ class UpdateScriptVersionController extends Controller
                 File::delete($filename_tmp); //delete old file if exist
             }
 
-            File::put(public_path() . '/install-version.txt', 'complete');
-
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
 
 
@@ -227,12 +225,10 @@ class UpdateScriptVersionController extends Controller
 
     public function checkIfFileExtracted()
     {
-        $status = File::get(public_path() . '/install-version.txt');
-
-        if ($status == 'complete') {
+        $lastVersionInfo = $this->getLastVersion();
+        if ($lastVersionInfo['version'] == $this->getCurrentVersion()) {
 
             Artisan::call('migrate', array('--force' => true)); //migrate database
-
             $this->clean();
 
             $lastVersionInfo = $this->getLastVersion();
