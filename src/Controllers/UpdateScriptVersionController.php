@@ -259,4 +259,9 @@ class UpdateScriptVersionController extends Controller
         Artisan::call('view:clear');
         Artisan::call('cache:clear');
     }
+
+    public function updateDatabase(){
+        Artisan::call('migrate', array('--force' => true));
+        return 'Database updated successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
+    }
 }

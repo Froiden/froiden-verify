@@ -5,6 +5,8 @@ Route::group(['namespace' => 'Froiden\Envato\Controllers'], function () {
     Route::get('verify-purchase', ['uses' => 'PurchaseVerificationController@verifyPurchase'])->name('verify-purchase');
     Route::post('purchase-verified', ['uses' => 'PurchaseVerificationController@purchaseVerified'])->name('purchase-verified');
 
+    Route::get('update-database', ['uses' => 'PurchaseVerificationController@updateDatabase'])->name('update-database');
+
     // update script version
     Route::group(['as' => 'admin.'], function () {
         Route::get('update-version/update', ['as' => 'updateVersion.update', 'uses' => 'UpdateScriptVersionController@update']);
@@ -13,5 +15,4 @@ Route::group(['namespace' => 'Froiden\Envato\Controllers'], function () {
         Route::get('update-version/checkIfFileExtracted', ['as' => 'updateVersion.checkIfFileExtracted', 'uses' => 'UpdateScriptVersionController@checkIfFileExtracted']);
         Route::get('update-version/install', ['as' => 'updateVersion.install', 'uses' => 'UpdateScriptVersionController@install']);
     });
-
 });
