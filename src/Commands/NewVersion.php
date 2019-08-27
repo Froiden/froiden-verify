@@ -103,9 +103,12 @@ class NewVersion extends Command
         echo exec('rm -rf ' . $path . 'storage/legal');
 
 
-        $this->info(' Delete Storage Folder Files');
+        $this->info(' Delete Storage and public uploads Folder Files');
         echo exec('rm -rf ' . $path . '/public/storage');
+        echo exec('rm -rf ' . $path . '/public/user-uploads/*');
 
+        $this->info(' Removing Zip files');
+        echo exec('rm -rf ' . $path . '/storage/app/*.zip');
 
         $this->info(' Removing symlink');
         echo exec('find ' . $path . '/storage/app/public \! -name ".gitignore" -delete');
@@ -158,8 +161,9 @@ class NewVersion extends Command
         $this->info(' Copying files from ' . $local . ' to ' . $path);
         echo exec('rsync -av --progress ' . $local . ' ' . $path . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude="public/.htaccess" --exclude="public/favicon" --exclude="public/favicon.ico" --exclude=".gitignore" --exclude=".idea"');
 
-        $this->info(' Delete Storage Folder Files');
+        $this->info(' Delete Storage and public uploads Folder Files');
         echo exec('rm -rf ' . $path . '/public/storage');
+        echo exec('rm -rf ' . $path . '/public/user-uploads/*');
 
         $this->info(' Delete Language Folder Files');
         echo exec('rm -rf ' . $path . '/resources/lang/*');
@@ -175,6 +179,9 @@ class NewVersion extends Command
 
         $this->info(' Delete log files');
         echo exec('rm ' . $path . '/storage/logs/laravel.log');
+
+        $this->info(' Removing Zip files');
+        echo exec('rm -rf ' . $path . '/storage/app/*.zip');
 
         $this->info(' Removing Documentation folder');
         echo exec('rm -rf ' . $path . '/documentation');
