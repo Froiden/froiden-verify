@@ -118,7 +118,7 @@ class NewVersion extends Command
         echo exec('cp ' . $path . '/.env.example ' . $path . '/.env');
 
         $this->info(' Delete log files');
-        echo exec('rm ' . $path . '/storage/logs/laravel.log');
+        echo exec('rm ' . $path . '/storage/logs/*.log');
 
         $this->info(' Removing laraupdater and upload.sh file');
         echo exec('rm -rf ' . $path . '/laraupdater.json');
@@ -178,7 +178,7 @@ class NewVersion extends Command
         echo exec('find ' . $path . '/storage/app/public \! -name ".gitignore" -delete');
 
         $this->info(' Delete log files');
-        echo exec('rm ' . $path . '/storage/logs/laravel.log');
+        echo exec('rm ' . $path . '/storage/logs/*.log');
 
         $this->info(' Removing Zip files');
         echo exec('rm -rf ' . $path . '/storage/app/*.zip');
