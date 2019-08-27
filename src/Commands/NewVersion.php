@@ -6,9 +6,6 @@ use Illuminate\Console\Command;
 use File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-
 
 class NewVersion extends Command
 {
