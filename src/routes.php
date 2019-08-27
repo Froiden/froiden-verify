@@ -8,7 +8,7 @@ Route::group(['namespace' => 'Froiden\Envato\Controllers', 'middleware' => 'web'
     Route::get('update-database', ['uses' => 'UpdateScriptVersionController@updateDatabase'])->name('update-database');
 
     // update script version
-    Route::group(['as' => 'admin.'], function () {
+    Route::group(['as' => 'admin.','prefix' => 'admin'], function () {
         Route::get('update-version/update', ['as' => 'updateVersion.update', 'uses' => 'UpdateScriptVersionController@update']);
         Route::get('update-version/download', ['as' => 'updateVersion.download', 'uses' => 'UpdateScriptVersionController@download']);
         Route::get('update-version/downloadPercent', ['as' => 'updateVersion.downloadPercent', 'uses' => 'UpdateScriptVersionController@downloadPercent']);
