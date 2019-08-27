@@ -242,16 +242,41 @@ class UpdateScriptVersionController extends Controller
 
     public function clean()
     {
+       $this->configClear();
+        echo exec('rm -rf '.storage_path('framework/sessions/*'));
+    }
+
+    public function configClear(){
         Artisan::call('config:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('cache:clear');
-        echo exec('rm -rf '.storage_path('framework/sessions/*'));
     }
 
     public function updateDatabase()
     {
         Artisan::call('migrate', array('--force' => true));
         return 'Database updated successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
+    }
+
+    public function clearCache()
+    {
+       $this->configClear();
+        if (request()->ajax()) {
+            return Reply::success('Cache cleared successfully.');
+        }
+
+        return 'Cache cleared successfully. <a href="'.route(config('froiden_envato.redirectRoute')).'">Click here to Login</a>';
+    }
+
+    public function refreshCache()
+    {
+        Artisan::call('optimize');
+
+        if (request()->ajax()) {
+            return Reply::success('Cache refreshed successfully.');
+        }
+
+        return 'Cache refreshed successfully. <a href="'.route(config('froiden_envato.redirectRoute')).'">Click here to Login</a>';
     }
 }
