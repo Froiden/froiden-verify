@@ -5,7 +5,7 @@ Route::group(['namespace' => 'Froiden\Envato\Controllers', 'middleware' => 'web'
     Route::get('verify-purchase', ['uses' => 'PurchaseVerificationController@verifyPurchase'])->name('verify-purchase');
     Route::post('purchase-verified', ['uses' => 'PurchaseVerificationController@purchaseVerified'])->name('purchase-verified');
 
-    Route::get('update-database', ['uses' => 'PurchaseVerificationController@updateDatabase'])->name('update-database');
+    Route::get('update-database', ['uses' => 'UpdateScriptVersionController@updateDatabase'])->name('update-database');
 
     // update script version
     Route::group(['as' => 'admin.'], function () {
