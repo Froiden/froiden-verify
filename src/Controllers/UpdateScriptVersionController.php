@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Session;
 use ZanySoft\Zip\Zip;
 
 class UpdateScriptVersionController extends Controller
@@ -84,6 +85,7 @@ class UpdateScriptVersionController extends Controller
 
         // extract whole archive
         $zip->extract(base_path());
+        $this->clean();
 
         return Reply::success('Zip extracted successfully. Now installing...');
     }
@@ -229,8 +231,6 @@ class UpdateScriptVersionController extends Controller
         if ($lastVersionInfo['version'] == $this->getCurrentVersion()) {
 
             Artisan::call('migrate', array('--force' => true)); //migrate database
-            $this->clean();
-
             $lastVersionInfo = $this->getLastVersion();
             $this->setCurrentVersion($lastVersionInfo['version']); //update system version
 
@@ -242,11 +242,12 @@ class UpdateScriptVersionController extends Controller
 
     public function clean()
     {
-       $this->configClear();
-        echo exec('rm -rf '.storage_path('framework/sessions/*'));
+        $this->configClear();
+        Session::flush();
     }
 
-    public function configClear(){
+    public function configClear()
+    {
         Artisan::call('config:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
@@ -261,12 +262,12 @@ class UpdateScriptVersionController extends Controller
 
     public function clearCache()
     {
-       $this->configClear();
+        $this->configClear();
         if (request()->ajax()) {
             return Reply::success('Cache cleared successfully.');
         }
 
-        return 'Cache cleared successfully. <a href="'.route(config('froiden_envato.redirectRoute')).'">Click here to Login</a>';
+        return 'Cache cleared successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
     }
 
     public function refreshCache()
@@ -277,6 +278,6 @@ class UpdateScriptVersionController extends Controller
             return Reply::success('Cache refreshed successfully.');
         }
 
-        return 'Cache refreshed successfully. <a href="'.route(config('froiden_envato.redirectRoute')).'">Click here to Login</a>';
+        return 'Cache refreshed successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
     }
 }
