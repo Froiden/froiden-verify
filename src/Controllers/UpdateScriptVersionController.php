@@ -29,7 +29,7 @@ class UpdateScriptVersionController extends Controller
         if (!$this->checkPermission()) {
             return Reply::error("ACTION NOT ALLOWED.");
         }
-
+        
         $lastVersionInfo = $this->getLastVersion();
 
         if ($lastVersionInfo['version'] <= $this->getCurrentVersion()) {
@@ -49,7 +49,9 @@ class UpdateScriptVersionController extends Controller
             if (file_exists($filename_tmp)) {
                 File::delete($filename_tmp); //delete old file if exist
             }
-
+    
+            // Clear cache when update button is clicked
+            $this->configClear();
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
 
 
