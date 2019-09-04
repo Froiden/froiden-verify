@@ -5,6 +5,7 @@ namespace Froiden\Envato\Traits;
 use Froiden\Envato\Helpers\Reply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 trait AppBoot
 {
@@ -169,5 +170,15 @@ trait AppBoot
         }
 
         return Reply::error($response['message'], null, ['server' => $response]);
+    }
+
+    public function showInstall(){
+        $setting = config('froiden_envato.setting');
+        $settingTable = (new $setting)->getTable();
+
+        if(!Schema::hasTable($settingTable)){
+            echo view('vendor.froiden-envato.install_message');
+            exit(1);
+        }
     }
 }
