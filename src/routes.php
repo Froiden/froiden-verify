@@ -18,4 +18,6 @@ Route::group(['namespace' => 'Froiden\Envato\Controllers', 'middleware' => 'web'
         Route::get('update-version/checkIfFileExtracted', ['as' => 'updateVersion.checkIfFileExtracted', 'uses' => 'UpdateScriptVersionController@checkIfFileExtracted']);
         Route::get('update-version/install', ['as' => 'updateVersion.install', 'uses' => 'UpdateScriptVersionController@install']);
     });
+    // For old routes on worksuite-saas
+    Route::get('super-admin/update-version/checkIfFileExtracted', ['uses' => 'UpdateScriptVersionController@checkIfFileExtracted']);
 });
