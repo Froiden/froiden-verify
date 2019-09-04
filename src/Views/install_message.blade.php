@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Worksuite Not installed</title>
+    <title>{{ ucwords(config('froiden_envato.envato_product_name'))}} Not installed</title>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet" href="//envato.froid.works/plugins/froiden-helper/helper.css">
     <link href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -94,8 +94,9 @@ if (function_exists('apache_get_modules')) {
         <div class="bs-example" data-example-id="alerts-with-links" style="margin-top:10px ">
 
 
-            <div class="alert alert-warning" role="alert"><strong>Worksuite not installed!</strong> Visit <a href="{{ url('/install')}}"
-                                                                                                             class="alert-link">{{ url('/install')}}</a>
+            <div class="alert alert-warning" role="alert"><strong>Worksuite not installed!</strong> Visit <a
+                    href="{{ url('/install')}}"
+                    class="alert-link">{{ url('/install')}}</a>
                 to get the installer.
             </div>
 
@@ -107,7 +108,7 @@ if (function_exists('apache_get_modules')) {
                 <h3 class="panel-title">Server Requirements.
                     @if (version_compare(PHP_VERSION, '7.1.3') > 0)
                         <span class="pull-right">Current PHP Version: {{ phpversion() }} <i
-                                    class="fa fa fa-check-circle text-success"></i></span>
+                                class="fa fa fa-check-circle text-success"></i></span>
                     @else
                         <span class="pull-right">Current PHP Version: {{ phpversion() }} <i data-toggle="tooltip"
                                                                                             data-original-title="PHP Update Required"
