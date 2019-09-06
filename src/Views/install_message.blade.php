@@ -94,7 +94,7 @@ if (function_exists('apache_get_modules')) {
         <div class="bs-example" data-example-id="alerts-with-links" style="margin-top:10px ">
 
 
-            <div class="alert alert-warning" role="alert"><strong>Worksuite not installed!</strong> Visit <a
+            <div class="alert alert-warning" role="alert"><strong>{{ ucwords(config('froiden_envato.envato_product_name'))}} not installed!</strong> Visit <a
                     href="{{ url('/install')}}"
                     class="alert-link">{{ url('/install')}}</a>
                 to get the installer.
