@@ -231,7 +231,12 @@ class UpdateScriptVersionController extends Controller
         $lastVersionInfo = $this->getLastVersion();
         if ($lastVersionInfo['version'] == $this->getCurrentVersion()) {
 
-            Artisan::call('migrate', array('--force' => true)); //migrate database
+            $status = Artisan::call('migrate:check');
+
+            if ($status) {
+                sleep(3);
+                Artisan::call('migrate', array('--force' => true)); //migrate database
+            }
             $lastVersionInfo = $this->getLastVersion();
             $this->setCurrentVersion($lastVersionInfo['version']); //update system version
 
