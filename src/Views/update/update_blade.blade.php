@@ -44,10 +44,7 @@
             <a id="update-app" href="javascript:;"
                class="btn btn-success btn-small">@lang('modules.update.updateNow') <i
                         class="fa fa-download"></i></a>
-            <br><br> OR <br><br>
-            <a href="{{ route('admin.update-settings.manual') }}"
-               class="btn btn-inverse btn-small">@lang('modules.update.updateManual') <i
-                        class="fa fa-refresh"></i></a>
+
         </div>
 
         <div class="col-md-12">
