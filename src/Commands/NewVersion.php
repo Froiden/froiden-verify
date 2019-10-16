@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class NewVersion extends Command
 {
 
-    private $product = '';
+    private $product;
     /**
      * The name and signature of the console command.
      *
@@ -44,7 +44,7 @@ class NewVersion extends Command
      */
     public function handle()
     {
-
+     
         $version = $this->argument('version');
 
         $this->clean();
@@ -53,20 +53,11 @@ class NewVersion extends Command
 
         $this->createAutoUpdate($version);
 
-        // Grab Filename and path
-        $filePath = $path . '.zip';
-        $array = explode('/', $filePath);
-        $fileName = end($array);
 
-        if ($this->confirm('Do you wish ' . $filePath . ' to CODECANYON server?', 'yes')) {
-            if (config('filesystems.customFtp.host') == '') {
-                $this->error('Please create the variables FTP_HOST, FTP_USERNAME, FTP_PASSWORD in .env file to process it');
-                return false;
-            }
-            $this->uploadToCodecanyon($filePath, $fileName);
-        }
-        $this->info("\n" . 'Uploaded successfully to CODECANYON server');
+        $this->comment("\n" . $this->product . '-' . $version.' and '. $this->product . '-auto-' . $version.' is Ready to distribute');
+
         $this->comment("\n" . 'run ./upload.sh to upload to froiden server');
+
 
     }
 
@@ -74,21 +65,17 @@ class NewVersion extends Command
     {
 
         $folder = $this->product . '-' . $version;
-        $path = '../versions/' . $folder . '/script';
+        $versionFolder = '../versions/';
+        $path = $versionFolder . $folder . '/script';
         $local = '../' . $this->product . '/';
 
         $this->comment("\n\n" . '------Creating Versions------');
         $this->info(' Removing Old ' . $folder . ' folder to create the new');
-        echo exec('rm -rf ' . $folder);
+        echo exec('rm -rf '.$versionFolder . $folder);
+        echo exec('rm -rf '.$versionFolder . $folder.'.zip');
 
         $this->info(' Creating the directory ' . $folder . '/script');
         echo exec('mkdir -p ' . $path);
-
-        $this->info(' removing old version.txt file');
-        echo exec('rm ' . $local . '/public/version.txt');
-
-        $this->info(' Copying version to know the version to version.txt file');
-        echo exec('echo ' . $version . '>> ' . $local . 'public/version.txt');
 
 
         $this->info(' Copying files from ' . $local . ' ' . $path);
@@ -97,17 +84,22 @@ class NewVersion extends Command
 
         $this->info(' Removing installed');
         echo exec('rm -rf ' . $path . '/storage/installed');
-
-
-        $this->info(' Removing legal file');
         echo exec('rm -rf ' . $path . 'storage/legal');
 
 
-        $this->info(' Delete Storage and public uploads Folder Files');
+        $this->info(' Delete Storage Folder Files');
         echo exec('rm -rf ' . $path . '/public/storage');
-        echo exec('rm -rf ' . $path . '/public/user-uploads/*');
 
-        $this->info(' Removing Zip files');
+        if ($this->product == 'recruit-saas') {
+            $this->comment(' Removing user-uploads folders except front-features/feature-* folder for codecanyon zip version');
+            $this->deleteDir($path . '/public/user-uploads');
+
+        } else {
+            $this->info(' Removing user-uploads folders');
+            echo exec('rm -rf ' . $path . '/public/user-uploads/*');
+        }
+
+        $this->info(' Removing auto-update zip files from storage folder');
         echo exec('rm -rf ' . $path . '/storage/app/*.zip');
 
         $this->info(' Removing symlink');
@@ -124,17 +116,16 @@ class NewVersion extends Command
         echo exec('rm -rf ' . $path . '/laraupdater.json');
         echo exec('rm -rf ' . $path . '/upload.sh');
 
-
-        $this->info(' removing old version.txt file');
+        $this->info(' Removing old version.txt file');
         echo exec('rm ' . $path . '/public/version.txt');
 
-
-        $this->info(' Copying version to know the version to version.txt file');
+        $this->info(' Copying '.$version.' version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/public/version.txt');
-
 
         $this->info(' Moving script/documentation to separate folder');
         echo exec('mv ' . $path . '/documentation ' . $path.'/../documentation/');
+
+
 
         // Zipping the folder
 
@@ -199,20 +190,6 @@ class NewVersion extends Command
         return $path;
     }
 
-    private function removeFiles()
-    {
-
-    }
-
-    private function uploadToCodecanyon($filePath, $fileName)
-    {
-        $this->comment('------Uploading to server------');
-        $localFile = File::get($filePath);
-
-        Storage::disk('customFtp')->put($fileName, $localFile);
-        $this->info('Done....');
-    }
-
     private function clean()
     {
         $this->comment("\n" . '------Cleaning------');
@@ -234,6 +211,34 @@ class NewVersion extends Command
 
         $this->info(' php artisan config:clear');
         Artisan::call('config:clear');
+    }
+
+    private function deleteDir($dirPath)
+    {
+
+        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+            $dirPath .= '/';
+        }
+
+        $files = glob($dirPath . '*', GLOB_MARK);
+
+        foreach ($files as $file) {
+            echo $file . "\n";
+
+            if (is_dir($file)) {
+                // This is required from recruit-saas
+                if ($file == 'front-features') continue;
+                echo exec('rm -rf ' . $file);
+                self::deleteDir($file);
+
+            } else {
+                if (strpos($file, 'feature-') !== false || strpos($file, '.gitignore') !== false) {
+                    continue;
+                }
+
+                unlink($file);
+            }
+        }
     }
 
 }
