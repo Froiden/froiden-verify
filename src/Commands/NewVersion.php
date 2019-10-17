@@ -99,6 +99,11 @@ class NewVersion extends Command
             echo exec('rm -rf ' . $path . '/public/user-uploads/*');
         }
 
+        $this->info(' removing old version.txt file');
+        echo exec('rm ' . $local . '/public/version.txt');
+        $this->info(' Copying version to know the version to version.txt file');
+        echo exec('echo ' . $version . '>> ' . $local . 'public/version.txt');
+        
         $this->info(' Removing auto-update zip files from storage folder');
         echo exec('rm -rf ' . $path . '/storage/app/*.zip');
 
