@@ -13,7 +13,7 @@ class EnvatoUpdate {
         return (new $setting)::first();
     }
 
-    public static function updateVersionInfo()
+     public static function updateVersionInfo()
     {
         $updateVersionInfo = [];
         try {
@@ -27,6 +27,11 @@ class EnvatoUpdate {
                 $updateVersionInfo['updateInfo'] = $lastVersion['description'];
             }
             $updateVersionInfo['updateInfo'] = $lastVersion['description'];
+            
+        } catch (\Exception $e) {
+        }
+        
+        try{
             // Get data of Logs
             $resLog = $client->request('GET', config('froiden_envato.versionLog') . '/' . File::get('version.txt'), ['verify' => false]);
             $lastVersionLog = json_decode($resLog->getBody(), true);
@@ -41,6 +46,7 @@ class EnvatoUpdate {
             }
         } catch (\Exception $e) {
         }
+        
         $updateVersionInfo['appVersion'] = File::get('version.txt');
         $laravel = app();
         $updateVersionInfo['laravelVersion'] = $laravel::VERSION;
