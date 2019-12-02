@@ -18,16 +18,34 @@ class EnvatoUpdate {
         $updateVersionInfo = [];
 
         try {
+
             $client = new Client();
+            // Get Data from server for download files
             $res = $client->request('GET', config('froiden_envato.updater_file_path'), ['verify' => false]);
             $lastVersion = $res->getBody();
             $lastVersion = json_decode($lastVersion, true);
+
 
             if ($lastVersion['version'] > File::get('version.txt')) {
                 $updateVersionInfo['lastVersion'] = $lastVersion['version'];
                 $updateVersionInfo['updateInfo'] = $lastVersion['description'];
             }
+
             $updateVersionInfo['updateInfo'] = $lastVersion['description'];
+
+            // Get data of Logs
+            $resLog = $client->request('GET', config('froiden_envato.versionLog').'/'.File::get('version.txt'), ['verify' => false]);
+            $lastVersionLog = json_decode($resLog->getBody(), true);
+
+            foreach ($lastVersionLog as $item) {
+                // Ignore duplicate of latest version
+                if (version_compare($item['version'], $lastVersion['version'])==0) {
+                    $updateVersionInfo['updateInfo'] = '<strong>Version: '.$item['version'].'</strong>'.$item['description'];
+                };
+
+                $updateVersionInfo['updateInfo'] .= '<strong>Version: '.$item['version'].'</strong>'.$item['description'].'<br>';
+            }
+
         } catch (\Exception $e) {
 
         }
