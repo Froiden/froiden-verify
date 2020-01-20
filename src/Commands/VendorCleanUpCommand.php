@@ -24,7 +24,6 @@ class VendorCleanUpCommand extends Command
         'changelog*',
         'contributing*',
         'upgrading*',
-        'upgrade*',
         '.idea',
         '.vagrant',
         'readme*',
