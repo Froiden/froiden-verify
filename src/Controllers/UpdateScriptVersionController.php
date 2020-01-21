@@ -5,6 +5,7 @@ namespace Froiden\Envato\Controllers;
 use Froiden\Envato\Helpers\Reply;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -26,6 +27,12 @@ class UpdateScriptVersionController extends Controller
     */
     public function update()
     {
+        $setting = config('froiden_envato.setting');
+        $this->appSetting = (new $setting)::first();
+        if (Carbon::parse($this->appSetting->supported_until)->isPast()) {
+            return Reply::error('Please renew your support for one-click updates.');
+        }
+        
         if (!$this->checkPermission()) {
             return Reply::error("ACTION NOT ALLOWED.");
         }
