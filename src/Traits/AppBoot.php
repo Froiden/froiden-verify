@@ -34,6 +34,11 @@ trait AppBoot
             return true;
         }
 
+        // Return true if its running on test domain of .dev domain
+        if (strpos($domain, '.test') !== false || strpos($domain, '.dev') !== false) {
+            return true;
+        }
+
         if (is_null($this->appSetting->purchase_code)) {
             return false;
         }
