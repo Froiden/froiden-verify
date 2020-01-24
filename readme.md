@@ -22,17 +22,3 @@ Following changes to be made
 ## Command to run for creating new version
         php artisan script:version {version}
 
-
-##### Add  below array to config/filesystems.php 
-
-        'customFtp' => [
-    
-            'driver' => 'ftp',
-    
-            'host' => env('FTP_HOST'),
-    
-            'username' => env('FTP_USERNAME'),
-    
-            'password' => env('FTP_PASSWORD'),
-        ],
-
