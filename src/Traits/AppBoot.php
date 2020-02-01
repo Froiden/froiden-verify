@@ -3,10 +3,10 @@
 namespace Froiden\Envato\Traits;
 
 use Froiden\Envato\Helpers\Reply;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Schema;
 
 trait AppBoot
 {
@@ -129,7 +129,7 @@ trait AppBoot
             // Object Object Error for verification
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $server_output = curl_exec($ch);
             $response = json_decode($server_output, true);
@@ -190,6 +190,7 @@ trait AppBoot
             exit(1);
         }
     }
+
     /**
      * @param $type
      * Type = closed_permanently_button_pressed,already_reviewed_button_pressed
