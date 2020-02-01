@@ -14,6 +14,28 @@ class EnvatoUpdate {
         return (new $setting)::first();
     }
 
+    public static function showReview()
+    {
+        $setting = config('froiden_envato.setting');
+        $envatoUpdateCompanySetting = (new $setting)::first();
+
+        // ShowReview only when supported members and show_review_modal is enabled
+        return (!is_null($envatoUpdateCompanySetting->supported_until) &&
+            !\Carbon\Carbon::parse($envatoUpdateCompanySetting->supported_until)->isPast() &&
+            $envatoUpdateCompanySetting->show_review_modal===1);
+
+    }
+
+    public static function reviewUrl()
+    {
+        $setting = config('froiden_envato.setting');
+        $envatoUpdateCompanySetting = (new $setting)::first();
+
+        $url = str_replace('verify-purchase','review',config('froiden_envato.verify_url'));
+        return $url.'/'.$envatoUpdateCompanySetting->purchase_code;
+
+    }
+
      public static function updateVersionInfo()
     {
         $updateVersionInfo = [];
@@ -28,10 +50,10 @@ class EnvatoUpdate {
                 $updateVersionInfo['updateInfo'] = $lastVersion['description'];
             }
             $updateVersionInfo['updateInfo'] = $lastVersion['description'];
-            
+
         } catch (\Exception $e) {
         }
-        
+
         try{
             // Get data of Logs
             $resLog = $client->request('GET', config('froiden_envato.versionLog') . '/' . File::get('version.txt'), ['verify' => false]);
@@ -47,7 +69,7 @@ class EnvatoUpdate {
             }
         } catch (\Exception $e) {
         }
-        
+
         $updateVersionInfo['appVersion'] = File::get('version.txt');
         $laravel = app();
         $updateVersionInfo['laravelVersion'] = $laravel::VERSION;
