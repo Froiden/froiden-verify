@@ -9,6 +9,8 @@ Route::group(['namespace' => 'Froiden\Envato\Controllers', 'middleware' => 'web'
     Route::get('clear-cache', ['uses' => 'UpdateScriptVersionController@clearCache']);
     Route::get('refresh-cache', ['uses' => 'UpdateScriptVersionController@refreshCache']);
 
+    // Hide Review Modal
+    Route::get('hide-review-modal/{type}', ['uses' => 'PurchaseVerificationController@hideReviewModal'])->name('hide-review-modal');
 
     // update script version
     Route::group(['as' => 'admin.','prefix' => 'admin'], function () {
