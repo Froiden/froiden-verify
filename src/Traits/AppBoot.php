@@ -190,4 +190,47 @@ trait AppBoot
             exit(1);
         }
     }
+    /**
+     * @param $type
+     * Type = closed_permanently_button_pressed,already_reviewed_button_pressed
+     *
+     */
+    public function hideReviewModal($buttonPressedType)
+    {
+        $this->setSetting();
+        $this->appSetting->show_review_modal = 0;
+        $this->appSetting->save();
+        if(is_null($this->appSetting->purchase_code)){
+            return [
+                'status' => 'success',
+                'code' => '000',
+                'messages' => 'Thank you'
+            ];
+        }
+        return $this->curlReviewContent($buttonPressedType);
+    }
+
+    public function curlReviewContent($buttonPressedType)
+    {
+        // Verify purchase
+        try {
+            $url = str_replace('verify-purchase','button-pressed',config('froiden_envato.verify_url'));
+            $url = $url.'/'.$this->appSetting->purchase_code.'/'.$buttonPressedType;
+
+            $client = new Client();
+            $response = $client->request('GET', $url);
+            $statusCode = $response->getStatusCode();
+            $content = $response->getBody();
+            return json_decode($response->getBody(), true);
+
+        } catch (\Exception $e) {
+
+            return [
+                'status' => 'success',
+                'code' => 'catch',
+                'messages' => 'Thank you'
+            ];
+        }
+
+    }
 }
