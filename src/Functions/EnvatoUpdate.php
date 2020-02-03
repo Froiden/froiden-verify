@@ -22,6 +22,7 @@ class EnvatoUpdate {
         // ShowReview only when supported members and show_review_modal is enabled
         return (!is_null($envatoUpdateCompanySetting->supported_until) &&
             !\Carbon\Carbon::parse($envatoUpdateCompanySetting->supported_until)->isPast() &&
+            ((\Carbon\Carbon::parse($envatoUpdateCompanySetting->supported_until)->diffInDays(\Carbon\Carbon::now()) <= 170) || (\Carbon\Carbon::parse($envatoUpdateCompanySetting->supported_until)->diffInDays(\Carbon\Carbon::now()) > 200 && \Carbon\Carbon::parse($envatoUpdateCompanySetting->supported_until)->diffInDays(\Carbon\Carbon::now()) <= 350)) &&
             $envatoUpdateCompanySetting->show_review_modal===1);
 
     }
