@@ -63,7 +63,7 @@ class NewVersionModule extends Command
 
         $folder = $this->module . '-' . $version;
         $versionFolder = '../versions/';
-        $path = $versionFolder . $folder . '/script';
+        $path = $versionFolder . $folder . '/'.$this->module;
         $local = '../' . $this->product.'/Modules/'.$this->module . '/';
         $this->comment($local);
         $this->comment("\n\n" . '------Creating Versions------');
@@ -71,7 +71,7 @@ class NewVersionModule extends Command
         echo exec('rm -rf '.$versionFolder . $folder);
         echo exec('rm -rf '.$versionFolder . $folder.'.zip');
 
-        $this->info(' Creating the directory ' . $folder . '/script');
+        $this->info(' Creating the directory ' . $folder . '/'.$this->module);
         echo exec('mkdir -p ' . $path);
 
 
@@ -93,11 +93,12 @@ class NewVersionModule extends Command
 
         $this->info(' Copying '.$version.' version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/version.txt');
+        $this->info('cd '.$versionFolder . $folder.'; zip -r ' . $this->module . '.zip '.$this->module);
 
         // Creating of module
-        echo exec('cd '.$path.'; zip -r ' . $this->module . '.zip .');
+        echo exec('cd '.$versionFolder . $folder.'; zip -r ' . $this->module . '.zip '.$this->module);
 
-        $this->info(' Moving script/documentation to separate folder');
+        $this->info(' Moving '.$this->module.'/documentation to separate folder');
         echo exec('mv ' . $path . '/Documentation ' . $path.'/../documentation/');
         echo exec('mv ' . $path . '/'.$this->module.'.zip ' . $path.'/../');
         echo exec('rm -rf ' . $path);
