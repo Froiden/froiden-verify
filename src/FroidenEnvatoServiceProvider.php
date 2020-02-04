@@ -4,6 +4,7 @@ namespace Froiden\Envato;
 
 use Froiden\Envato\Commands\MigrateCheckCommand;
 use Froiden\Envato\Commands\NewVersion;
+use Froiden\Envato\Commands\NewVersionModule;
 use Froiden\Envato\Commands\VendorCleanUpCommand;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +23,7 @@ class FroidenEnvatoServiceProvider extends ServiceProvider
         $this->commands([
             VendorCleanUpCommand::class,
             NewVersion::class,
+            NewVersionModule::class,
             MigrateCheckCommand::class
         ]);
     }
