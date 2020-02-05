@@ -93,14 +93,15 @@ class NewVersionModule extends Command
 
         $this->info(' Copying '.$version.' version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/version.txt');
+
+        $this->info(' Moving '.$this->module.'/documentation to separate folder');
+        echo exec('mv ' . $path . '/Documentation ' . $path.'/../documentation/');
         $this->info('cd '.$versionFolder . $folder.'; zip -r ' . $this->module . '.zip '.$this->module);
 
         // Creating of module
         echo exec('cd '.$versionFolder . $folder.'; zip -r ' . $this->module . '.zip '.$this->module);
 
-        $this->info(' Moving '.$this->module.'/documentation to separate folder');
-        echo exec('mv ' . $path . '/Documentation ' . $path.'/../documentation/');
-        echo exec('mv ' . $path . '/'.$this->module.'.zip ' . $path.'/../');
+
         echo exec('rm -rf ' . $path);
 
         // Zipping the folder
