@@ -36,7 +36,14 @@ class EnvatoUpdate {
         return $url.'/'.$envatoUpdateCompanySetting->purchase_code;
 
     }
-
+    
+    public static function plugins(){
+        $client = new Client();
+        $res = $client->request('GET', config('froiden_envato.plugins_url'), ['verify' => false]);
+        $lastVersion = $res->getBody();
+        return json_decode($lastVersion, true);
+    }
+    
      public static function updateVersionInfo()
     {
         $updateVersionInfo = [];
