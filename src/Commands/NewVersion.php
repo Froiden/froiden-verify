@@ -131,7 +131,9 @@ class NewVersion extends Command
         echo exec('mv ' . $path . '/documentation ' . $path.'/../documentation/');
 
 
-
+        $this->comment("\n\n" . '------Emptying Modules Directroy------'."\n\n");
+        echo exec('rm -rf ' . $path . '/Modules/*');
+        
         // Zipping the folder
 
         $this->info(' Zipping the folder');
@@ -191,6 +193,9 @@ class NewVersion extends Command
 
         $this->info(' Copying version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/public/version.txt');
+        
+        $this->comment("\n\n" . '------Emptying Modules Directroy------'."\n\n");
+        echo exec('rm -rf ' . $path . '/Modules/*');
 
         return $path;
     }
