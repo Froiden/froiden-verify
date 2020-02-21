@@ -35,7 +35,7 @@ class NewVersionModule extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->product = 'worksuite-rest-api';
+        $this->product = config('froiden_envato.envato_product_name');
 
     }
 
