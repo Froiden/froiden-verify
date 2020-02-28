@@ -61,7 +61,7 @@ class NewVersionModule extends Command
     private function createVersionZip($version)
     {
 
-        $folder = $this->module . '-' . $version;
+        $folder = $this->product.'-'.strtolower($this->module) . '-module-' . $version;
         $versionFolder = '../versions/';
         $path = $versionFolder . $folder . '/'.$this->module;
         $local = '../' . $this->product.'/Modules/'.$this->module . '/';
