@@ -256,6 +256,7 @@ class UpdateScriptVersionController extends Controller
     public function clean()
     {
         $this->configClear();
+        session()->forget('check_migrate_status');
         Session::flush();
     }
 
