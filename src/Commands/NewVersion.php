@@ -44,7 +44,7 @@ class NewVersion extends Command
      */
     public function handle()
     {
-     
+
         $version = $this->argument('version');
 
         $this->clean();
@@ -103,9 +103,12 @@ class NewVersion extends Command
         echo exec('rm ' . $local . '/public/version.txt');
         $this->info(' Copying version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $local . 'public/version.txt');
-        
+
         $this->info(' Removing auto-update zip files from storage folder');
         echo exec('rm -rf ' . $path . '/storage/app/*.zip');
+
+        $this->info(' Removing modules_status.json');
+        echo exec('rm -rf ' . $path . '/storage/app/modules_statuses.json');
 
         $this->info(' Removing symlink');
         echo exec('find ' . $path . '/storage/app/public \! -name ".gitignore" -delete');
@@ -133,7 +136,7 @@ class NewVersion extends Command
 
         $this->comment("\n\n" . '------Emptying Modules Directroy------'."\n\n");
         echo exec('rm -rf ' . $path . '/Modules/*');
-        
+
         // Zipping the folder
 
         $this->info(' Zipping the folder');
@@ -178,6 +181,9 @@ class NewVersion extends Command
         $this->info(' Delete log files');
         echo exec('rm ' . $path . '/storage/logs/*.log');
 
+        $this->info(' Removing modules_status.json');
+        echo exec('rm -rf ' . $path . '/storage/app/modules_statuses.json');
+
         $this->info(' Removing Zip files');
         echo exec('rm -rf ' . $path . '/storage/app/*.zip');
 
@@ -193,7 +199,7 @@ class NewVersion extends Command
 
         $this->info(' Copying version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/public/version.txt');
-        
+
         $this->comment("\n\n" . '------Emptying Modules Directroy------'."\n\n");
         echo exec('rm -rf ' . $path . '/Modules/*');
 
