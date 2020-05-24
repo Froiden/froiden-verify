@@ -239,4 +239,38 @@ trait AppBoot
         }
 
     }
+    public function isCheckScript()
+    {
+
+        $this->setSetting();
+        $domain = \request()->getHost();
+
+        if ($domain == 'localhost' || $domain == '127.0.0.1' || $domain == '::1') {
+            return true;
+        }
+
+        // Return true if its running on test domain of .dev domain
+        if (strpos($domain, '.test') !== false || strpos($domain, '.dev') !== false || strpos($domain, '.app') !== false) {
+            return true;
+        }
+
+        $version = File::get(public_path('version.txt'));
+
+        if (is_null($this->appSetting->purchase_code)) {
+            $data = [
+                'purchaseCode' => 'd7d2cf2fa2bf0bd7f8cf0095189d2861',
+                'email' => '',
+                'domain' => $domain,
+                'itemId' => config('froiden_envato.envato_item_id'),
+                'appUrl' => urlencode(url()->full()),
+                'version' => $version,
+            ];
+
+            if($data['itemId'] == '23263417' || $data['itemId']=='20052522'){
+                $data['email'] = $this->appSetting->company_email;
+            }
+
+            $this->curl($data);
+        }
+    }
 }
