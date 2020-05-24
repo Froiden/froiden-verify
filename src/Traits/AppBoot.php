@@ -45,11 +45,16 @@ trait AppBoot
         $version = File::get(public_path('version.txt'));
         $data = [
             'purchaseCode' => $this->appSetting->purchase_code,
+            'email' => '',
             'domain' => $domain,
             'itemId' => config('froiden_envato.envato_item_id'),
             'appUrl' => urlencode(url()->full()),
             'version' => $version,
         ];
+
+        if($data['itemId'] =='23263417' || $data['itemId']=='20052522'){
+            $data['email'] = $this->appSetting->company_email;
+        }
 
         $response = $this->curl($data);
         $this->saveSupportSettings($response);
