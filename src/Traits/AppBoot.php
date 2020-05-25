@@ -266,8 +266,17 @@ trait AppBoot
                 'version' => $version,
             ];
 
-            if($data['itemId'] == '23263417' || $data['itemId']=='20052522'){
+            // worksuite, worksuite-saas, recruit-saas, recruit, appointo
+            $companiesEmailArray = ['23263417','20052522','24061995','22336912','22989501'];
+
+            // hrm-saas, hrm, knap
+            $emailArray = ['23400912','11309213','19665246'];
+
+            if(in_array($data['itemId'],$companiesEmailArray)){
                 $data['email'] = $this->appSetting->company_email;
+
+            }elseif(in_array($data['itemId'],$emailArray)){
+                $data['email'] = $this->appSetting->email;
             }
 
             $this->curl($data);
