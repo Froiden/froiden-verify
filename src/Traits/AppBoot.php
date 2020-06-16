@@ -35,7 +35,7 @@ trait AppBoot
         }
 
         // Return true if its running on test domain of .dev domain
-       if (strpos($domain, '.test') !== false || strpos($domain, '.dev') !== false || strpos($domain, '.app') !== false) {
+        if (strpos($domain, '.test') !== false) {
             return true;
         }
 
