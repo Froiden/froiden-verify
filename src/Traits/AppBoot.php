@@ -7,6 +7,8 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 trait AppBoot
 {
@@ -290,5 +292,22 @@ trait AppBoot
 
             $this->curl($data);
         }
+    }
+    
+    // Set The application to set if no purchase code found
+    public function down($hash){
+        $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
+        if($check){
+            Storage::disk('storage')->put('down','not-a-license-verified-version');
+        }
+        return response()->json('System is down');
+    }
+
+    public function up($hash){
+        $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
+        if($check){
+            Storage::disk('storage')->delete('down');
+        }
+        return response()->json('System is UP');
     }
 }
