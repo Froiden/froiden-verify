@@ -287,6 +287,7 @@ class UpdateScriptVersionController extends Controller
     public function refreshCache()
     {
         Artisan::call('optimize');
+        Artisan::call('route:clear');
 
         if (request()->ajax()) {
             return Reply::success('Cache refreshed successfully.');
