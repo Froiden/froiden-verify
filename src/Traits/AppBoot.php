@@ -2,6 +2,7 @@
 
 namespace Froiden\Envato\Traits;
 
+use App\Setting;
 use Froiden\Envato\Helpers\Reply;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -44,6 +45,7 @@ trait AppBoot
         if (is_null($this->appSetting->purchase_code)) {
             return false;
         }
+
         $version = File::get(public_path('version.txt'));
         $data = [
             'purchaseCode' => $this->appSetting->purchase_code,
@@ -55,25 +57,31 @@ trait AppBoot
         ];
 
         // worksuite, worksuite-saas, recruit-saas, recruit, appointo
-        $companiesEmailArray = ['23263417','20052522','24061995','22336912','22989501'];
-        
-            // hrm-saas, hrm, knap
-        $emailArray = ['23400912','11309213','19665246'];
+        $companiesEmailArray = ['23263417', '20052522', '24061995', '22336912', '22989501'];
 
-        if(in_array($data['itemId'],$companiesEmailArray)){
-              $data['email'] = $this->appSetting->company_email;
+        // hrm-saas, hrm, knap
+        $emailArray = ['23400912', '11309213', '19665246'];
 
-        }elseif(in_array($data['itemId'],$emailArray)){
-               $data['email'] = $this->appSetting->email;
+        if (in_array($data['itemId'], $companiesEmailArray)) {
+            $data['email'] = $this->appSetting->company_email;
+        } elseif (in_array($data['itemId'], $emailArray)) {
+            $data['email'] = $this->appSetting->email;
         }
 
         $response = $this->curl($data);
+
         $this->saveSupportSettings($response);
 
-        if ($response['status'] == 'success') {
+        if ($response && $response['status'] == 'success') {
             return true;
         }
 
+        if (is_null($response)) {
+
+            $this->saveToSettings($this->appSetting->purchase_code);
+
+            return Reply::success('Your purchase code is verified', null, ['server' => $response]);
+        }
         return false;
     }
 
@@ -152,7 +160,6 @@ trait AppBoot
             curl_close($ch);
 
             return $response;
-
         } catch (\Exception $e) {
 
             return [
@@ -160,7 +167,6 @@ trait AppBoot
                 'messages' => 'Your purchase code is successfully verified'
             ];
         }
-
     }
 
     /**
@@ -182,10 +188,9 @@ trait AppBoot
 
         // Send request to froiden server to validate the license
         $response = $this->curl($postData);
-
         $this->saveSupportSettings($response);
 
-        if ($response['status'] === 'success') {
+        if ($response && $response['status'] === 'success') {
 
             if ($savePurchaseCode) {
                 $this->saveToSettings($purchaseCode);
@@ -194,6 +199,12 @@ trait AppBoot
             return Reply::successWithData($response['message'] . ' <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click to go back</a>', ['server' => $response]);
         }
 
+        if (is_null($response) && $savePurchaseCode) {
+
+            $this->saveToSettings($purchaseCode);
+
+            return Reply::success('Your purchase code is verified', null, ['server' => $response]);
+        }
         return Reply::error($response['message'], null, ['server' => $response]);
     }
 
@@ -217,7 +228,7 @@ trait AppBoot
         $this->setSetting();
         $this->appSetting->show_review_modal = 0;
         $this->appSetting->save();
-        if(is_null($this->appSetting->purchase_code)){
+        if (is_null($this->appSetting->purchase_code)) {
             return [
                 'status' => 'success',
                 'code' => '000',
@@ -231,15 +242,14 @@ trait AppBoot
     {
         // Verify purchase
         try {
-            $url = str_replace('verify-purchase','button-pressed',config('froiden_envato.verify_url'));
-            $url = $url.'/'.$this->appSetting->purchase_code.'/'.$buttonPressedType;
+            $url = str_replace('verify-purchase', 'button-pressed', config('froiden_envato.verify_url'));
+            $url = $url . '/' . $this->appSetting->purchase_code . '/' . $buttonPressedType;
 
             $client = new Client();
             $response = $client->request('GET', $url);
             $statusCode = $response->getStatusCode();
             $content = $response->getBody();
             return json_decode($response->getBody(), true);
-
         } catch (\Exception $e) {
 
             return [
@@ -248,7 +258,6 @@ trait AppBoot
                 'messages' => 'Thank you'
             ];
         }
-
     }
     public function isCheckScript()
     {
@@ -278,34 +287,35 @@ trait AppBoot
             ];
 
             // worksuite, worksuite-saas, recruit-saas, recruit, appointo
-            $companiesEmailArray = ['23263417','20052522','24061995','22336912','22989501'];
+            $companiesEmailArray = ['23263417', '20052522', '24061995', '22336912', '22989501'];
 
             // hrm-saas, hrm, knap
-            $emailArray = ['23400912','11309213','19665246'];
+            $emailArray = ['23400912', '11309213', '19665246'];
 
-            if(in_array($data['itemId'],$companiesEmailArray)){
+            if (in_array($data['itemId'], $companiesEmailArray)) {
                 $data['email'] = $this->appSetting->company_email;
-
-            }elseif(in_array($data['itemId'],$emailArray)){
+            } elseif (in_array($data['itemId'], $emailArray)) {
                 $data['email'] = $this->appSetting->email;
             }
 
             $this->curl($data);
         }
     }
-    
+
     // Set The application to set if no purchase code found
-    public function down($hash){
+    public function down($hash)
+    {
         $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
-        if($check){
-            Storage::disk('storage')->put('down','not-a-license-verified-version');
+        if ($check) {
+            Storage::disk('storage')->put('down', 'not-a-license-verified-version');
         }
         return response()->json('System is down');
     }
 
-    public function up($hash){
+    public function up($hash)
+    {
         $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
-        if($check){
+        if ($check) {
             Storage::disk('storage')->delete('down');
         }
         return response()->json('System is UP');
