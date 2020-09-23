@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Session;
-use ZanySoft\Zip\Zip;
+use Zip;
 
 class UpdateScriptVersionController extends Controller
 {
