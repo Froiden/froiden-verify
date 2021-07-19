@@ -126,6 +126,8 @@ class NewVersion extends Command
         $this->info(' Removing laraupdater and upload.sh file');
         echo exec('rm -rf ' . $path . '/laraupdater.json');
         echo exec('rm -rf ' . $path . '/upload.sh');
+        $this->info(' gitlab_Ci');
+        echo exec('rm -rf ' . $path . '/.gitlab-ci.yml');
 
         $this->info(' Removing old version.txt file');
         echo exec('rm ' . $path . '/public/version.txt');
@@ -199,6 +201,9 @@ class NewVersion extends Command
         $this->info(' Removing laraupdater and upload.sh file');
         echo exec('rm -rf ' . $path . '/laraupdater.json');
         echo exec('rm -rf ' . $path . '/upload.sh');
+        
+        $this->info(' gitlab_Ci');
+        echo exec('rm -rf ' . $path . '/.gitlab-ci.yml');
 
         $this->info(' removing old version.txt file');
         echo exec('rm ' . $path . '/public/version.txt');
