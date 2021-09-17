@@ -62,18 +62,18 @@ class EnvatoUpdate {
         } catch (\Exception $e) {
         }
 
-        try{
+       try{
             // Get data of Logs
             $resLog = $client->request('GET', config('froiden_envato.versionLog') . '/' . File::get('version.txt'), ['verify' => false]);
             $lastVersionLog = json_decode($resLog->getBody(), true);
             foreach ($lastVersionLog as $item) {
                 // Ignore duplicate of latest version
-                $releaseDate = $item['release_date']?' (Released on:'. Carbon::parse($item['release_date'])->format('d M Y').')':'';
+                $releaseDate = $item['release_date']?' (Release date: '. Carbon::parse($item['release_date'])->format('d M Y').')':'';
                 if (version_compare($item['version'], $lastVersion['version']) == 0) {
-                    $updateVersionInfo['updateInfo'] = '<strong>Version: ' . $item['version'] .$releaseDate. '</strong>' . $item['description'];
+                    $updateVersionInfo['updateInfo'] = '<strong class="version-update-heading">Version: ' . $item['version'] .$releaseDate. '</strong>' . $item['description'];
                     continue;
                 };
-                $updateVersionInfo['updateInfo'] .= '<strong>Version: ' . $item['version'] .$releaseDate. '</strong>' . $item['description'];
+                $updateVersionInfo['updateInfo'] .= '<strong class="version-update-heading">Version: ' . $item['version'] .$releaseDate. '</strong>' . $item['description'];
             }
         } catch (\Exception $e) {
         }
