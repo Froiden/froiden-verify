@@ -131,6 +131,9 @@ class NewVersion extends Command
 
         $this->info(' Removing old version.txt file');
         echo exec('rm ' . $path . '/public/version.txt');
+        
+        $this->info(' Removing node_modules folder');
+        echo exec('rm -rf ' . $path . '/node_modules');
 
         $this->info(' Copying '.$version.' version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/public/version.txt');
@@ -197,6 +200,9 @@ class NewVersion extends Command
 
         $this->info(' Removing Documentation folder');
         echo exec('rm -rf ' . $path . '/documentation');
+
+        $this->info(' Removing node_modules folder');
+        echo exec('rm -rf ' . $path . '/node_modules');
 
         $this->info(' Removing laraupdater and upload.sh file');
         echo exec('rm -rf ' . $path . '/laraupdater.json');
