@@ -28,7 +28,6 @@ class VendorCleanUpCommand extends Command
         '.vagrant',
         'readme*',
         '_ide_helper.php',
-        '{,.}*.yml',
         '*.dist',
         '*.md',
         '*.log',
