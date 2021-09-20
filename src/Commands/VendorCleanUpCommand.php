@@ -31,7 +31,6 @@ class VendorCleanUpCommand extends Command
         '*.dist',
         '*.md',
         '*.log',
-        '*.txt',
         '*.pdf',
         '*.xls',
         '*.doc',
