@@ -18,7 +18,8 @@ class XSS
      */
     public function handle(Request $request, Closure $next)
     {
-        $IGNORE_REQUESTS = config('froiden_envato.xss_ignore_index','widget_code');
+        
+        $IGNORE_REQUESTS = config('froiden_envato.xss_ignore_index',['widget_code']);
 
         if (!in_array(strtolower($request->method()), ['put', 'post'])) {
             return $next($request);
