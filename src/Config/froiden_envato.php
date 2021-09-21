@@ -61,4 +61,12 @@ return [
     */
 
     'allow_users_id' => false,
+    
+    
+    /*
+   * Set which where you want to use the script tag
+   * Make sure you prevent in demo or do not expose to normal user
+   */
+
+    'xss_ignore_index' => ['widget_code']
 ];
