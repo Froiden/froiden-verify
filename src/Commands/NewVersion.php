@@ -84,7 +84,12 @@ class NewVersion extends Command
 
         $this->info(' Removing installed');
         echo exec('rm -rf ' . $path . '/storage/installed');
+               
+        $this->info(' Removing Legal');
         echo exec('rm -rf ' . $path . 'storage/legal');
+        
+        $this->info(' Removing .gitlab folder');
+        echo exec('rm -rf ' . $path . '.gitlab');
 
 
         $this->info(' Delete Storage Folder Files');
@@ -173,6 +178,9 @@ class NewVersion extends Command
         $this->info(' Delete Storage and public uploads Folder Files');
         echo exec('rm -rf ' . $path . '/public/storage');
         echo exec('rm -rf ' . $path . '/public/user-uploads/*');
+        
+        $this->info(' Removing .gitlab folder');
+        echo exec('rm -rf ' . $path . '.gitlab');
 
         $this->info(' Delete Language Folder Files');
         echo exec('rm -rf ' . $path . '/resources/lang/*');
