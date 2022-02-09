@@ -85,8 +85,10 @@ class NewVersion extends Command
         $this->info(' Removing installed');
         echo exec('rm -rf ' . $path . '/storage/installed');
                
-        $this->info(' Removing Legal');
+        $this->info(' Removing Legal and Reviewed file');
         echo exec('rm -rf ' . $path . 'storage/legal');
+        echo exec('rm -rf ' . $path . 'storage/reviewed');
+        
         
         $this->info(' Removing .gitlab folder');
         echo exec('rm -rf ' . $path . '.gitlab');
