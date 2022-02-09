@@ -133,6 +133,10 @@ trait AppBoot
             $this->appSetting->supported_until = $response['supported_until'];
             $this->appSetting->save();
         }
+        
+        if (isset($response['review_given']) && ($response['review_given'] == 'yes')) {
+            file_put_contents(storage_path('reviewed'), 'reviewed');
+        }
     }
 
     /**
