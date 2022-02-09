@@ -207,6 +207,11 @@ class NewVersion extends Command
 
         $this->info(' Removing Zip files');
         echo exec('rm -rf ' . $path . '/storage/app/*.zip');
+        
+        $this->info(' Removing Legal and Reviewed file');
+        echo exec('rm -rf ' . $path . 'storage/legal');
+        echo exec('rm -rf ' . $path . 'storage/reviewed');
+        
 
         $this->info(' Removing Documentation folder');
         echo exec('rm -rf ' . $path . '/documentation');
