@@ -128,7 +128,8 @@ class NewVersion extends Command
         echo exec('rm ' . $path . '/storage/logs/*.log');
 
         $this->info(' Delete down files');
-        echo exec('rm ' . $path . '/storage/app/down');
+        echo exec('rm ' . $path . '/storage/framework/down');
+        echo exec('rm ' . $path . '/storage/framework/maintenance.php');
 
         $this->info(' Removing laraupdater and upload.sh file');
         echo exec('rm -rf ' . $path . '/laraupdater.json');
@@ -200,7 +201,8 @@ class NewVersion extends Command
         echo exec('rm ' . $path . '/storage/logs/*.log');
 
         $this->info(' Delete down files');
-        echo exec('rm ' . $path . '/storage/app/down');
+        echo exec('rm ' . $path . '/storage/framework/down');
+        echo exec('rm ' . $path . '/storage/framework/maintenance.php');
 
         $this->info(' Removing modules_status.json');
         echo exec('rm -rf ' . $path . '/storage/app/modules_statuses.json');
