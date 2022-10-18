@@ -6,6 +6,7 @@ use App\Setting;
 use Froiden\Envato\Helpers\Reply;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -132,14 +133,14 @@ trait AppBoot
         $this->setSetting();
         if (isset($response['supported_until']) && ($response['supported_until'] !== $this->appSetting->supported_until)) {
             $this->appSetting->supported_until = $response['supported_until'];
-            
+
             if (Schema::hasColumn($this->appSetting->getTable(), 'license_type')) {
                 $this->appSetting->license_type = isset($response['license_type']) ? $response['license_type'] : null;
             }
 
             $this->appSetting->save();
         }
-        
+
         if (isset($response['review_given']) && ($response['review_given'] == 'yes')) {
             file_put_contents(storage_path('reviewed'), 'reviewed');
         }
@@ -317,7 +318,7 @@ trait AppBoot
     {
         $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
         if ($check) {
-            Storage::disk('storage')->put('down', 'not-a-license-verified-version');
+            Artisan::call('down');
         }
         return response()->json('System is down');
     }
@@ -326,7 +327,7 @@ trait AppBoot
     {
         $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
         if ($check) {
-            Storage::disk('storage')->delete('down');
+            Artisan::call('up');
         }
         return response()->json('System is UP');
     }
