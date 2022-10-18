@@ -261,6 +261,10 @@ class NewVersion extends Command
 
         $this->info(' php artisan config:clear');
         Artisan::call('config:clear');
+        
+        $this->info('php artisan up');
+        Artisan::call('up');
+        
     }
 
     private function deleteDir($dirPath)
