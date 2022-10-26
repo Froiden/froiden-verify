@@ -2,6 +2,7 @@
 
 namespace Froiden\Envato\Traits;
 
+use Carbon\Carbon;
 use Froiden\Envato\Helpers\Reply;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -30,14 +31,15 @@ trait AppBoot
      */
     public function isLegal()
     {
+
         $this->setSetting();
         $domain = \request()->getHost();
-
-        if ($domain == 'localhost' || $domain == '127.0.0.1' || $domain == '::1') {
+        
+        if (in_array($domain, ['localhost', '127.0.0.1', '::1'])) {
             return true;
         }
 
-        // Return true if its running on test domain of .dev domain
+        // Return true if its running on test domain of .test domain
         if (strpos($domain, '.test') !== false) {
             return true;
         }
@@ -47,6 +49,7 @@ trait AppBoot
         }
 
         $version = File::get(public_path('version.txt'));
+
         $data = [
             'purchaseCode' => $this->appSetting->purchase_code,
             'email' => '',
@@ -64,13 +67,26 @@ trait AppBoot
 
         if (in_array($data['itemId'], $companiesEmailArray)) {
             $data['email'] = $this->appSetting->company_email;
-        } elseif (in_array($data['itemId'], $emailArray)) {
+        }
+        elseif (in_array($data['itemId'], $emailArray)) {
             $data['email'] = $this->appSetting->email;
         }
 
-        $response = $this->curl($data);
+        if (Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at')) {
 
+            if(!is_null($this->appSetting->last_license_verified_at)){
+
+                // If last license checked is today then do not check again for today
+                if(Carbon::parse($this->appSetting->last_license_verified_at)->isSameDay(now())){
+                    return true;
+                }
+            }
+        }
+
+        $response = $this->curl($data);
         $this->saveSupportSettings($response);
+
+        $this->saveLastVerifiedAt($this->appSetting->purchase_code);
 
         if ($response && $response['status'] == 'success') {
             return true;
@@ -82,6 +98,7 @@ trait AppBoot
 
             return Reply::success('Your purchase code is verified', null, ['server' => $response]);
         }
+
         return false;
     }
 
@@ -123,6 +140,20 @@ trait AppBoot
         $this->setSetting();
         $setting = $this->appSetting;
         $setting->purchase_code = $purchaseCode;
+
+        $setting->save();
+    }
+    /**
+     * @param $purchaseCode
+     */
+    public function saveLastVerifiedAt($purchaseCode)
+    {
+        $this->setSetting();
+        $setting = $this->appSetting;
+        if (Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at')) {
+            $setting->last_license_verified_at = now();
+        }
+
         $setting->save();
     }
 
@@ -214,6 +245,7 @@ trait AppBoot
 
             return Reply::success('Your purchase code is verified', null, ['server' => $response]);
         }
+
         return Reply::error($response['message'], null, ['server' => $response]);
     }
 
@@ -244,6 +276,7 @@ trait AppBoot
                 'messages' => 'Thank you'
             ];
         }
+
         return $this->curlReviewContent($buttonPressedType);
     }
 
@@ -258,6 +291,7 @@ trait AppBoot
             $response = $client->request('GET', $url);
             $statusCode = $response->getStatusCode();
             $content = $response->getBody();
+
             return json_decode($response->getBody(), true);
         } catch (\Exception $e) {
 
@@ -268,6 +302,7 @@ trait AppBoot
             ];
         }
     }
+
     public function isCheckScript()
     {
 
@@ -303,7 +338,8 @@ trait AppBoot
 
             if (in_array($data['itemId'], $companiesEmailArray)) {
                 $data['email'] = $this->appSetting->company_email;
-            } elseif (in_array($data['itemId'], $emailArray)) {
+            }
+            elseif (in_array($data['itemId'], $emailArray)) {
                 $data['email'] = $this->appSetting->email;
             }
 
@@ -318,6 +354,7 @@ trait AppBoot
         if ($check) {
             Artisan::call('down');
         }
+
         return response()->json('System is down');
     }
 
@@ -327,6 +364,8 @@ trait AppBoot
         if ($check) {
             Artisan::call('up');
         }
+
         return response()->json('System is UP');
     }
+
 }
