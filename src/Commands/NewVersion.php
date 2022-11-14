@@ -196,6 +196,9 @@ class NewVersion extends Command
 
         $this->info(' Copy English Language Folder Files');
         echo exec('cp ' . $local . 'resources/lang/en/* ' . $path . '/resources/lang/en/');
+        
+        $this->info(' Copying .htaccess of user-uploads to user-uploads');
+        echo exec('cp ' . $path . '/public/user-uploads/.htaccess ' . $path . '/public/user-uploads/.htaccess');
 
         $this->info(' Removing symlink');
         echo exec('find ' . $path . '/storage/app/public \! -name ".gitignore" -delete');
