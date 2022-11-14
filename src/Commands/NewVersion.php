@@ -126,6 +126,7 @@ class NewVersion extends Command
         
         $this->info(' Copying .htaccess of user-uploads to user-uploads');
         echo exec('cp ' . $path . '/public/user-uploads/.htaccess ' . $path . '/public/user-uploads/.htaccess');
+        echo exec('chmod -R 755 ' . $path . '/public/user-uploads/');
 
         $this->info(' Delete log files');
         echo exec('rm ' . $path . '/storage/logs/*.log');
@@ -199,6 +200,7 @@ class NewVersion extends Command
         
         $this->info(' Copying .htaccess of user-uploads to user-uploads');
         echo exec('cp ' . $path . '/public/user-uploads/.htaccess ' . $path . '/public/user-uploads/.htaccess');
+        echo exec('chmod -R 755 ' . $path . '/public/user-uploads/');
 
         $this->info(' Removing symlink');
         echo exec('find ' . $path . '/storage/app/public \! -name ".gitignore" -delete');
