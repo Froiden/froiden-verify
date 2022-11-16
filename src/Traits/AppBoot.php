@@ -44,6 +44,11 @@ trait AppBoot
             return true;
         }
 
+        // Return true if its running on test domain of .ngrok domain
+        if (strpos($domain, '.ngrok.io') !== false) {
+            return true;
+        }
+        
         if (is_null($this->appSetting->purchase_code)) {
             return false;
         }
