@@ -32,11 +32,11 @@ class UpdateScriptVersionController extends Controller
         if (Carbon::parse($this->appSetting->supported_until)->isPast()) {
             return Reply::error('Please renew your support for one-click updates.');
         }
-        
+
         if (!$this->checkPermission()) {
             return Reply::error("ACTION NOT ALLOWED.");
         }
-        
+
         $lastVersionInfo = $this->getLastVersion();
 
         if ($lastVersionInfo['version'] <= $this->getCurrentVersion()) {
@@ -56,7 +56,7 @@ class UpdateScriptVersionController extends Controller
             if (file_exists($filename_tmp)) {
                 File::delete($filename_tmp); //delete old file if exist
             }
-    
+
             // Clear cache when update button is clicked
             $this->configClear();
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
@@ -257,7 +257,8 @@ class UpdateScriptVersionController extends Controller
     {
         $this->configClear();
         session()->forget('check_migrate_status');
-        Session::flush();
+        session()->flush();
+        cache()->flush();
     }
 
     public function configClear()
@@ -277,6 +278,10 @@ class UpdateScriptVersionController extends Controller
     public function clearCache()
     {
         $this->configClear();
+
+        session()->flush();
+        cache()->flush();
+
         if (request()->ajax()) {
             return Reply::success('Cache cleared successfully.');
         }
