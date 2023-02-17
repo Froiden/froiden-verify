@@ -3,8 +3,8 @@
     "description": "Package for checking licencnse key and update for envato project.",
     "authors": [
         {
-            "name": "Rajesh Kumawat",
-            "email": "rajesh@froiden.com"
+            "name": "Ajay Kumar Choudhary",
+            "email": "ajay138@gmail.com"
         }
     ],
     "autoload": {
