@@ -167,12 +167,14 @@ trait AppBoot
         $this->setSetting();
         if (isset($response['supported_until']) && ($response['supported_until'] !== $this->appSetting->supported_until)) {
             $this->appSetting->supported_until = $response['supported_until'];
-
-            if (Schema::hasColumn($this->appSetting->getTable(), 'license_type')) {
-                $this->appSetting->license_type = isset($response['license_type']) ? $response['license_type'] : null;
-            }
-
             $this->appSetting->save();
+        }
+
+        if (Schema::hasColumn($this->appSetting->getTable(), 'license_type') && isset($response['license_type'])) {
+            if($response['license_type'] !== $this->appSetting->license_type){
+                $this->appSetting->license_type = $response['license_type'] ?? null;
+                $this->appSetting->save();
+            }
         }
 
         if (isset($response['review_given']) && ($response['review_given'] == 'yes')) {
