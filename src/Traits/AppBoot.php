@@ -45,7 +45,7 @@ trait AppBoot
         }
 
         // Return true if its running on test domain of .ngrok domain
-        if (strpos($domain, '.ngrok.io') !== false) {
+        if (strpos($domain, 'ngrok') !== false) {
             return true;
         }
         
