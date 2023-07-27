@@ -10,7 +10,7 @@ class XSS
 
 
     /**
-     * Handle an incoming request.
+     * Handle incoming request.
      *
      * @param \Illuminate\Http\Request $request
      * @param \Closure $next
@@ -30,7 +30,7 @@ class XSS
         array_walk_recursive($input, function (&$input, $index) use ($IGNORE_REQUESTS) {
             // Ignore for widget code
             if (!empty($input) && !in_array($index, $IGNORE_REQUESTS)) {
-                $input = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $input);
+                $input = preg_replace('#<script(.*?)>(.*?)</script>#is', '', strip_tags($input));
             }
         });
 
