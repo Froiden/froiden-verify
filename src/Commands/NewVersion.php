@@ -196,7 +196,7 @@ class NewVersion extends Command
         echo exec('mkdir -p ' . $path . '/resources/lang/en');
 
         $this->info(' Copy English Language Folder Files');
-        echo exec('cp ' . $local . 'resources/lang/en/* ' . $path . '/resources/lang/en/');
+        echo exec('cp ' . $local . 'resources/lang/eng/* ' . $path . '/resources/lang/eng/');
         
         $this->info(' Copying .htaccess of user-uploads to user-uploads');
         echo exec('cp ' . $path . '/public/user-uploads/.htaccess ' . $path . '/public/user-uploads/.htaccess');
