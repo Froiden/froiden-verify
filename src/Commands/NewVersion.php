@@ -193,7 +193,7 @@ class NewVersion extends Command
         echo exec('rm -rf ' . $path . '/resources/lang/*');
 
         $this->info(' Creating the en directory ' . $path . '/resources/lang');
-        echo exec('mkdir -p ' . $path . '/resources/lang/en');
+        echo exec('mkdir -p ' . $path . '/resources/lang/eng');
 
         $this->info(' Copy English Language Folder Files');
         echo exec('cp ' . $local . 'resources/lang/eng/* ' . $path . '/resources/lang/eng/');
