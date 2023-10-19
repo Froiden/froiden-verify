@@ -74,6 +74,9 @@ class NewVersionModule extends Command
         $this->info(' Creating the directory ' . $folder . '/'.$this->module);
         echo exec('mkdir -p ' . $path);
 
+        if (strtolower($this->module) == 'universalbundle') {
+            $this->copyModulesToUniversalBundleModules();
+        }
 
         $this->info(' Copying files from ' . $local . ' ' . $path);
         echo exec('rsync -av --progress ' . $local . ' ' . $path . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea"');
@@ -111,5 +114,19 @@ class NewVersionModule extends Command
         return $path;
     }
 
+    private function copyModulesToUniversalBundleModules()
+    {
+        $modules = File::directories(base_path().'/Modules');
+        $universalBundleModulePath = base_path().'/Modules/UniversalBundle/Modules';
+
+        foreach ($modules as $module) {
+            $moduleName = basename($module);
+
+            if ($moduleName != 'UniversalBundle') {
+                $this->info(' Copying ' . $moduleName . ' to UniversalBundle Modules');
+                echo exec('rsync -av --progress ' . $module . ' ' . $universalBundleModulePath . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea"');
+            }
+        }
+    }
 
 }
