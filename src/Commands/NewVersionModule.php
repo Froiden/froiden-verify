@@ -82,6 +82,12 @@ class NewVersionModule extends Command
         echo exec('rsync -av --progress ' . $local . ' ' . $path . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea"');
 
 
+        $this->info(' Creating the en directory ' . $path . '/Resources/lang');
+        echo exec('mkdir -p ' . $path . '/Resources/lang/eng');
+
+        $this->info(' Copy English Language Folder Files');
+        echo exec('cp ' . $local . 'Resources/lang/eng/* ' . $path . '/Resources/lang/eng/');
+
         $this->info(' removing old version.txt file');
         echo exec('rm ' . $local . '/version.txt');
         $this->info(' Copying version to know the version to version.txt file');
@@ -123,8 +129,15 @@ class NewVersionModule extends Command
             $moduleName = basename($module);
 
             if ($moduleName != 'UniversalBundle') {
+                $this->info(' Removing ' . $moduleName . ' from UniversalBundle Modules');
+                echo exec('rm -rf ' . $universalBundleModulePath . '/' . $moduleName);
+
                 $this->info(' Copying ' . $moduleName . ' to UniversalBundle Modules');
-                echo exec('rsync -av --progress ' . $module . ' ' . $universalBundleModulePath . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea"');
+                echo exec('rsync -av --progress ' . $module . ' ' . $universalBundleModulePath . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea" --exclude="upload.sh" --exclude="Documentation/"');
+
+                $this->info(' Removing all the lang file from Resources/lang and copy only eng directory');
+                echo exec('rm -rf ' . $universalBundleModulePath . '/' . $moduleName . '/Resources/lang/*');
+                echo exec('cp -r ' . $module . '/Resources/lang/eng ' . $universalBundleModulePath . '/' . $moduleName . '/Resources/lang/');
             }
         }
     }
