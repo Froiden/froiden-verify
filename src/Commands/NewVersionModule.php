@@ -128,9 +128,13 @@ class NewVersionModule extends Command
         foreach ($modules as $module) {
             $moduleName = basename($module);
 
-            if ($moduleName != 'UniversalBundle') {
                 $this->info(' Removing ' . $moduleName . ' from UniversalBundle Modules');
                 echo exec('rm -rf ' . $universalBundleModulePath . '/' . $moduleName);
+
+                // Ignore autotranslate and universalbundle
+                if (in_array(strtolower($moduleName), ['autotranslate', 'universalbundle'])) {
+                    continue;
+                }
 
                 $this->info(' Copying ' . $moduleName . ' to UniversalBundle Modules');
                 echo exec('rsync -av --progress ' . $module . ' ' . $universalBundleModulePath . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea" --exclude="upload.sh" --exclude="Documentation/"');
@@ -138,7 +142,6 @@ class NewVersionModule extends Command
                 $this->info(' Removing all the lang file from Resources/lang and copy only eng directory');
                 echo exec('rm -rf ' . $universalBundleModulePath . '/' . $moduleName . '/Resources/lang/*');
                 echo exec('cp -r ' . $module . '/Resources/lang/eng ' . $universalBundleModulePath . '/' . $moduleName . '/Resources/lang/');
-            }
         }
     }
 
