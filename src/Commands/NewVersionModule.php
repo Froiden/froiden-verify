@@ -79,7 +79,7 @@ class NewVersionModule extends Command
         }
 
         $this->info(' Copying files from ' . $local . ' ' . $path);
-        echo exec('rsync -av --progress ' . $local . ' ' . $path . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea"');
+        echo exec('rsync -av --progress ' . $local . ' ' . $path . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea" ');
 
 
         $this->info(' Creating the en directory ' . $path . '/Resources/lang');
@@ -96,6 +96,9 @@ class NewVersionModule extends Command
 
         $this->info(' Removing laraupdater and upload.sh file');
         echo exec('rm -rf ' . $path . '/upload.sh');
+
+        $this->info(' Removing laraupdater and gitlab_yml file');
+        echo exec('rm -rf ' . $path . '/.gitlab-ci.yml');
 
         $this->info(' Removing old version.txt file');
         echo exec('rm ' . $path . '/version.txt');
@@ -137,7 +140,7 @@ class NewVersionModule extends Command
                 }
 
                 $this->info(' Copying ' . $moduleName . ' to UniversalBundle Modules');
-                echo exec('rsync -av --progress ' . $module . ' ' . $universalBundleModulePath . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea" --exclude="upload.sh" --exclude="Documentation/"');
+                echo exec('rsync -av --progress ' . $module . ' ' . $universalBundleModulePath . ' --exclude=".git" --exclude=".phpintel" --exclude=".env" --exclude=".idea" --exclude="upload.sh" --exclude=".gitlab-ci.yml" --exclude="Documentation/"');
 
                 $this->info(' Removing all the lang file from Resources/lang and copy only eng directory');
                 echo exec('rm -rf ' . $universalBundleModulePath . '/' . $moduleName . '/Resources/lang/*');
