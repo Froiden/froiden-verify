@@ -64,11 +64,18 @@ trait AppBoot
             'version' => $version,
         ];
 
-        // worksuite, worksuite-saas, recruit-saas, recruit, appointo
-        $companiesEmailArray = ['23263417', '20052522', '24061995', '22336912', '22989501'];
+        //  recruit-saas, recruit, appointo
+        $companiesEmailArray = [ '24061995', '22336912', '22989501'];
 
-        // hrm-saas, hrm, knap
-        $emailArray = ['23400912', '11309213', '19665246'];
+        // worksuite, worksuite-saas, hrm-saas, hrm, knap
+        $emailArray = ['23263417', '20052522','23400912', '11309213', '19665246'];
+
+        if (in_array($data['itemId'], $companiesEmailArray)) {
+            $data['email'] = $this->appSetting->company_email;
+        }
+        elseif (in_array($data['itemId'], $emailArray)) {
+            $data['email'] = $this->appSetting->email;
+        }
 
         if (in_array($data['itemId'], $companiesEmailArray)) {
             $data['email'] = $this->appSetting->company_email;
