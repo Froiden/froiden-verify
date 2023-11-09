@@ -134,6 +134,11 @@ class NewVersionModule extends Command
             $this->info(' Removing ' . $moduleName . ' from UniversalBundle Modules');
             echo exec('rm -rf ' . $universalBundleModulePath . '/' . $moduleName);
 
+            // Ignore autotranslate and universalbundle
+            if (in_array(strtolower($moduleName), ['universalbundle'])) {
+                continue;
+            }
+            
             // Ignore all modules having ignore_in_universal file
             if (file_exists($module . '/ignore_in_universal')) {
                 continue;
