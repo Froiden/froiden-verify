@@ -90,6 +90,8 @@ class UpdateScriptVersionController extends Controller
         $archive = $lastVersionInfo['archive'];
         $update_path = config('froiden_envato.tmp_path') . '/' . $archive;
 
+        $this->changePhpConfigs();
+
         $zip = Zip::open($update_path);
 
         // extract whole archive
@@ -116,6 +118,8 @@ class UpdateScriptVersionController extends Controller
         $filename_tmp = config('froiden_envato.tmp_path') . '/' . $update_name;
 
         $downloadRemoteUrl = config('froiden_envato.update_baseurl') . '/' . $update_name;
+
+        $this->changePhpConfigs();
 
         $dlHandler = fopen($filename_tmp, 'w');
 
@@ -300,4 +304,18 @@ class UpdateScriptVersionController extends Controller
 
         return 'Cache refreshed successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
     }
+
+    private function changePhpConfigs()
+    {
+        try {
+            if (function_exists('ini_set')) {
+                // set unlimited
+                ini_set('max_execution_time', 0);
+                ini_set('memory_limit', -1);
+            }
+        } catch (\Exception $e) {
+            $e->getMessage();
+        }
+    }
+
 }
