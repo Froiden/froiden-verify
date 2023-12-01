@@ -106,14 +106,13 @@ class UpdateScriptVersionController extends Controller
 
         File::put(public_path() . '/percent-download.txt', '');
 
-        $lastVersionInfo = $this->getLastVersion();
         $getLastVersionFileUrl = $this->getLastVersionFileUrl();
 
         if ($getLastVersionFileUrl['type'] == 'error') {
             return Reply::error($getLastVersionFileUrl['message']);
         }
 
-        $update_name = $lastVersionInfo['archive'];
+        $update_name = $getLastVersionFileUrl['version']['file_name'];
 
         $filename_tmp = config('froiden_envato.tmp_path') . '/' . $update_name;
 
