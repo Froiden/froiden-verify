@@ -10,6 +10,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use Zip;
 
@@ -28,48 +29,52 @@ class UpdateScriptVersionController extends Controller
     */
     public function update()
     {
+        // Get the setting and retrieve the app setting
         $setting = config('froiden_envato.setting');
         $this->appSetting = (new $setting)::first();
 
+        // Check if support has expired
         if (Carbon::parse($this->appSetting->supported_until)->isPast()) {
             return Reply::error('Please renew your support for one-click updates.');
         }
 
+        // Check user permission
         if (!$this->checkPermission()) {
             return Reply::error("ACTION NOT ALLOWED.");
         }
 
+        // Get information about the latest version
         $lastVersionInfo = $this->getLastVersion();
 
+        // Check if the system is already updated to the latest version
         if ($lastVersionInfo['version'] <= $this->getCurrentVersion()) {
-            return Reply::error("Your System IS ALREADY UPDATED to latest version !");
+            return Reply::error("Your System IS ALREADY UPDATED to the latest version!");
         }
 
+
         try {
+            // Set up temporary backup directory
             $this->tmp_backup_dir = base_path() . '/backup_' . date('Ymd');
 
-            $lastVersionInfo = $this->getLastVersion();
-
+            // Get the update name and filename
             $update_name = $lastVersionInfo['archive'];
-
             $filename_tmp = config('froiden_envato.tmp_path') . '/' . $update_name;
 
-
+            // Delete the old file if it exists
             if (file_exists($filename_tmp)) {
-                File::delete($filename_tmp); //delete old file if exist
+                File::delete($filename_tmp);
             }
 
-            // Clear cache when update button is clicked
+            // Clear cache when the update button is clicked
             $this->configClear();
 
+            // Return success response with download message
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
-
         } catch (\Exception $e) {
-            echo '<p>ERROR DURING UPDATE (!!check the update archive!!) --TRY to restore OLD status ........... ';
+            // Handle update error and try to restore to the old status
+            echo '<p>ERROR DURING UPDATE (!!check the update archive!!) --TRY to restore OLD status ........... </p>';
 
             $this->restore();
-
-            echo '</p>';
         }
     }
 
@@ -91,6 +96,7 @@ class UpdateScriptVersionController extends Controller
         // extract whole archive
         $zip->extract(base_path());
         $this->clean();
+
         return Reply::success('Zip extracted successfully. Now installing...');
     }
 
@@ -132,7 +138,7 @@ class UpdateScriptVersionController extends Controller
                 },
                 'verify' => false
             ]);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return Reply::error($e->getMessage());
         }
 
@@ -171,13 +177,9 @@ class UpdateScriptVersionController extends Controller
 
     private function getLastVersion()
     {
-        $client = new Client();
-        $res = $client->request('GET', config('froiden_envato.updater_file_path'), ['verify' => false]);
-        $lastVersion = $res->getBody();
+        $url = config('froiden_envato.updater_file_path');
 
-        $content = json_decode($lastVersion, true);
-
-        return $content; //['version' => $v, 'archive' => 'RELEASE-$v.zip', 'description' => 'plain text...'];
+        return $this->getRemoteData($url);
     }
 
     private function backup($filename)
@@ -275,9 +277,8 @@ class UpdateScriptVersionController extends Controller
     public function clean()
     {
         $user = auth()->id();
-
         $this->configClear();
-        session()->forget('check_migrate_status');
+
         session()->flush();
         cache()->flush();
 
@@ -346,13 +347,30 @@ class UpdateScriptVersionController extends Controller
 
         $this->appSetting = (new $setting)::first();
 
+        // Change last_license_verified_at to 1 day back so that when he logs in again. The license is checked again
+        if (Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at')) {
+            $this->appSetting->update(['last_license_verified_at' => now()->subDays(2)]);
+        }
+
+        $url = config('froiden_envato.latest_version_file') . '/' . $this->appSetting->purchase_code;
+
+        return $this->getRemoteData($url);
+
+    }
+
+    private function getRemoteData($url)
+    {
         $client = new Client();
-        $res = $client->request('GET', config('froiden_envato.latest_version_file') . '/' . $this->appSetting->purchase_code, ['verify' => false]);
+        $res = $client->request('GET', $url, ['verify' => false]);
         $lastVersion = $res->getBody();
 
         $content = json_decode($lastVersion, true);
 
-        return $content;
+        if (!cache()->has($url)) {
+            cache([$url => $content], now()->addMinutes(5));
+        }
+
+        return cache($url);
     }
 
 }
