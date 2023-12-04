@@ -2,6 +2,7 @@
 
 namespace Froiden\Envato\Controllers;
 
+use Froiden\Envato\Functions\EnvatoUpdate;
 use Froiden\Envato\Helpers\Reply;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -40,7 +41,7 @@ class UpdateScriptVersionController extends Controller
 
         // Check user permission
         if (!$this->checkPermission()) {
-            return Reply::error("ACTION NOT ALLOWED.");
+            return Reply::error('ACTION NOT ALLOWED.');
         }
 
         // Get information about the latest version
@@ -48,7 +49,7 @@ class UpdateScriptVersionController extends Controller
 
         // Check if the system is already updated to the latest version
         if ($lastVersionInfo['version'] <= $this->getCurrentVersion()) {
-            return Reply::error("Your System IS ALREADY UPDATED to the latest version!");
+            return Reply::error('Your System IS ALREADY UPDATED to the latest version!');
         }
 
 
@@ -179,7 +180,7 @@ class UpdateScriptVersionController extends Controller
     {
         $url = config('froiden_envato.updater_file_path');
 
-        return $this->getRemoteData($url);
+        return EnvatoUpdate::getRemoteData($url);
     }
 
     private function backup($filename)
@@ -347,30 +348,15 @@ class UpdateScriptVersionController extends Controller
 
         $this->appSetting = (new $setting)::first();
 
-        // Change last_license_verified_at to 1 day back so that when he logs in again. The license is checked again
+        // Change last_license_verified_at to 1 day back so as when he logs in back. The license is checked again
         if (Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at')) {
             $this->appSetting->update(['last_license_verified_at' => now()->subDays(2)]);
         }
 
         $url = config('froiden_envato.latest_version_file') . '/' . $this->appSetting->purchase_code;
 
-        return $this->getRemoteData($url);
+        return EnvatoUpdate::getRemoteData($url);
 
     }
-
-    private function getRemoteData($url)
-    {
-        $client = new Client();
-        $res = $client->request('GET', $url, ['verify' => false]);
-        $lastVersion = $res->getBody();
-
-        $content = json_decode($lastVersion, true);
-
-        if (!cache()->has($url)) {
-            cache([$url => $content], now()->addMinutes(5));
-        }
-
-        return cache($url);
-    }
-
+    
 }
