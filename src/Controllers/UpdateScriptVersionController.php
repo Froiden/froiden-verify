@@ -20,6 +20,15 @@ class UpdateScriptVersionController extends Controller
 
     private $tmp_backup_dir = null;
 
+    public function __construct()
+    {
+        parent::__construct();
+        // Get the setting and retrieve the app setting
+        $setting = config('froiden_envato.setting');
+        $this->appSetting = (new $setting)::first();
+
+    }
+
     private function checkPermission()
     {
         return config('froiden_envato.allow_users_id');
@@ -30,9 +39,6 @@ class UpdateScriptVersionController extends Controller
     */
     public function update()
     {
-        // Get the setting and retrieve the app setting
-        $setting = config('froiden_envato.setting');
-        $this->appSetting = (new $setting)::first();
 
         // Check if support has expired
         if (Carbon::parse($this->appSetting->supported_until)->isPast()) {
@@ -265,7 +271,7 @@ class UpdateScriptVersionController extends Controller
                 sleep(3);
                 Artisan::call('migrate', array('--force' => true)); //migrate database
             }
-            $lastVersionInfo = $this->getLastVersion();
+
             $this->setCurrentVersion($lastVersionInfo['version']); //update system version
 
             //logout user after installing update
@@ -344,9 +350,6 @@ class UpdateScriptVersionController extends Controller
 
     private function getLastVersionFileUrl()
     {
-        $setting = config('froiden_envato.setting');
-
-        $this->appSetting = (new $setting)::first();
 
         // Change last_license_verified_at to 1 day back so as when he logs in back. The license is checked again
         if (Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at')) {
@@ -358,5 +361,5 @@ class UpdateScriptVersionController extends Controller
         return EnvatoUpdate::getRemoteData($url);
 
     }
-    
+
 }
