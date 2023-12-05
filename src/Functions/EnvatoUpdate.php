@@ -16,7 +16,7 @@ class EnvatoUpdate
         return (new $setting)::first();
     }
 
-    
+
     public static function showReview()
     {
         $setting = config('froiden_envato.setting');
@@ -65,7 +65,7 @@ class EnvatoUpdate
         $daysDifference = Carbon::parse($this->supported_until)->diffInDays(Carbon::now());
         return $daysDifference > 200 && $daysDifference <= 360;
     }
-    
+
     public static function reviewUrl()
     {
         $setting = config('froiden_envato.setting');
@@ -129,17 +129,17 @@ class EnvatoUpdate
 
     public static function getRemoteData($url, $method = 'GET')
     {
-        if (!cache()->has($url)) {
+        if (cache()->has($url)) {
             return cache($url);
         }
-        
+
         $client = new Client();
         $res = $client->request('GET', $url, ['verify' => false]);
         $body = $res->getBody();
 
         $content = json_decode($body, true);
         cache([$url => $content], now()->addMinutes(30));
-     
+
         return $content;
 
     }
