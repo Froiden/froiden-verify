@@ -129,17 +129,19 @@ class EnvatoUpdate
 
     public static function getRemoteData($url, $method = 'GET')
     {
+        if (!cache()->has($url)) {
+            return cache($url);
+        }
+        
         $client = new Client();
         $res = $client->request('GET', $url, ['verify' => false]);
         $body = $res->getBody();
 
         $content = json_decode($body, true);
+        cache([$url => $content], now()->addMinutes(30));
+     
+        return $content;
 
-        if (!cache()->has($url)) {
-            cache([$url => $content], now()->addMinutes(30));
-        }
-
-        return cache($url);
     }
 
 
