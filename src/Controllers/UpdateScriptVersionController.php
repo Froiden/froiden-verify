@@ -101,7 +101,7 @@ class UpdateScriptVersionController extends Controller
         $zip = Zip::open($update_path);
 
         // extract whole archive
-        $zip->extract(base_path());
+//        $zip->extract(base_path());
         $this->clean();
 
         return Reply::success('Zip extracted successfully. Now installing...');
