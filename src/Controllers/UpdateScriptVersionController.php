@@ -117,7 +117,7 @@ class UpdateScriptVersionController extends Controller
     {
 
         if (!$this->checkPermission()) {
-            return Reply::error("ACTION NOT ALLOWED.");
+            return Reply::error('ACTION NOT ALLOWED.');
         }
 
         File::put(public_path() . '/percent-download.txt', '');
@@ -182,7 +182,7 @@ class UpdateScriptVersionController extends Controller
 
     private function setCurrentVersion($last)
     {
-        File::put(public_path() . '/version.txt', $last); //UPDATE $current_version to last version
+        File::put(public_path() . '/version.txt', $last); // UPDATE $current_version to last version
     }
 
     private function getLastVersion()
@@ -199,7 +199,7 @@ class UpdateScriptVersionController extends Controller
         if (!is_dir($backup_dir)) File::makeDirectory($backup_dir, $mode = 0755, true, true);
         if (!is_dir($backup_dir . '/' . dirname($filename))) File::makeDirectory($backup_dir . '/' . dirname($filename), $mode = 0755, true, true);
 
-        File::copy(base_path() . '/' . $filename, $backup_dir . '/' . $filename); //to backup folder
+        File::copy(base_path() . '/' . $filename, $backup_dir . '/' . $filename); //To backup folder
     }
 
     private function restore()
@@ -258,9 +258,7 @@ class UpdateScriptVersionController extends Controller
 
     public function downloadPercent(Request $request)
     {
-        $percent = File::get(public_path() . '/percent-download.txt');
-
-        return $percent;
+        return File::get(public_path() . '/percent-download.txt');
     }
 
     public function checkIfFileExtracted()
@@ -304,14 +302,14 @@ class UpdateScriptVersionController extends Controller
         Artisan::call('cache:clear');
     }
 
-    public function updateDatabase()
+    public function updateDatabase(): string
     {
         Artisan::call('migrate', array('--force' => true));
 
         return 'Database updated successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
     }
 
-    public function clearCache()
+    public function clearCache(): array|string
     {
         $this->configClear();
 
@@ -325,7 +323,7 @@ class UpdateScriptVersionController extends Controller
         return 'Cache cleared successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
     }
 
-    public function refreshCache()
+    public function refreshCache(): array|string
     {
         Artisan::call('optimize');
         Artisan::call('route:clear');
