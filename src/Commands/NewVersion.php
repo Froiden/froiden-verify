@@ -44,7 +44,6 @@ class NewVersion extends Command
      */
     public function handle()
     {
-
         $version = $this->argument('version');
 
         $this->clean();
@@ -54,7 +53,7 @@ class NewVersion extends Command
         $this->createAutoUpdate($version);
 
 
-        $this->comment("\n" . $this->product . '-' . $version.' and '. $this->product . '-auto-' . $version.' is Ready to distribute');
+        $this->comment("\n" . $this->product . '-' . $version . ' and ' . $this->product . '-auto-' . $version . ' is Ready to distribute');
 
         $this->comment("\n" . 'run ./upload.sh to upload to froiden server');
 
@@ -71,8 +70,8 @@ class NewVersion extends Command
 
         $this->comment("\n\n" . '------Creating Versions------');
         $this->info(' Removing Old ' . $folder . ' folder to create the new');
-        echo exec('rm -rf '.$versionFolder . $folder);
-        echo exec('rm -rf '.$versionFolder . $folder.'.zip');
+        echo exec('rm -rf ' . $versionFolder . $folder);
+        echo exec('rm -rf ' . $versionFolder . $folder . '.zip');
 
         $this->info(' Creating the directory ' . $folder . '/script');
         echo exec('mkdir -p ' . $path);
@@ -84,12 +83,12 @@ class NewVersion extends Command
 
         $this->info(' Removing installed');
         echo exec('rm -rf ' . $path . '/storage/installed');
-               
+
         $this->info(' Removing Legal and Reviewed file');
         echo exec('rm -rf ' . $path . 'storage/legal');
         echo exec('rm -rf ' . $path . 'storage/reviewed');
-        
-        
+
+
         $this->info(' Removing .gitlab folder');
         echo exec('rm -rf ' . $path . '.gitlab');
 
@@ -101,7 +100,8 @@ class NewVersion extends Command
             $this->comment(' Removing user-uploads folders except front-features/feature-* folder for codecanyon zip version');
             $this->deleteDir($path . '/public/user-uploads');
 
-        } else {
+        }
+        else {
             $this->info(' Removing user-uploads folders');
             echo exec('rm -rf ' . $path . '/public/user-uploads/*');
         }
@@ -123,7 +123,7 @@ class NewVersion extends Command
 
         $this->info(' Copying .env.example to .env');
         echo exec('cp ' . $path . '/.env.example ' . $path . '/.env');
-        
+
         $this->info(' Copying .htaccess of user-uploads to user-uploads');
         echo exec('cp ' . $path . '/public/user-uploads/.htaccess ' . $path . '/public/user-uploads/.htaccess');
         echo exec('chmod -R 755 ' . $path . '/public/user-uploads/');
@@ -143,18 +143,18 @@ class NewVersion extends Command
 
         $this->info(' Removing old version.txt file');
         echo exec('rm ' . $path . '/public/version.txt');
-        
+
         $this->info(' Removing node_modules folder');
         echo exec('rm -rf ' . $path . '/node_modules');
 
-        $this->info(' Copying '.$version.' version to know the version to version.txt file');
+        $this->info(' Copying ' . $version . ' version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/public/version.txt');
 
         $this->info(' Moving script/documentation to separate folder');
-        echo exec('mv ' . $path . '/documentation ' . $path.'/../documentation/');
+        echo exec('mv ' . $path . '/documentation ' . $path . '/../documentation/');
 
 
-        $this->comment("\n\n" . '------Emptying Modules Directroy------'."\n\n");
+        $this->comment("\n\n" . '------Emptying Modules Directory------' . "\n\n");
         echo exec('rm -rf ' . $path . '/Modules/*');
 
         // Zipping the folder
@@ -185,7 +185,7 @@ class NewVersion extends Command
         $this->info(' Delete Storage and public uploads Folder Files');
         echo exec('rm -rf ' . $path . '/public/storage');
         echo exec('rm -rf ' . $path . '/public/user-uploads/*');
-        
+
         $this->info(' Removing .gitlab folder');
         echo exec('rm -rf ' . $path . '.gitlab');
 
@@ -197,7 +197,7 @@ class NewVersion extends Command
 
         $this->info(' Copy English Language Folder Files');
         echo exec('cp ' . $local . 'resources/lang/eng/* ' . $path . '/resources/lang/eng/');
-        
+
         $this->info(' Copying .htaccess of user-uploads to user-uploads');
         echo exec('cp ' . $path . '/public/user-uploads/.htaccess ' . $path . '/public/user-uploads/.htaccess');
         echo exec('chmod -R 755 ' . $path . '/public/user-uploads/');
@@ -217,11 +217,11 @@ class NewVersion extends Command
 
         $this->info(' Removing Zip files');
         echo exec('rm -rf ' . $path . '/storage/app/*.zip');
-        
+
         $this->info(' Removing Legal and Reviewed file');
         echo exec('rm -rf ' . $path . 'storage/legal');
         echo exec('rm -rf ' . $path . 'storage/reviewed');
-        
+
 
         $this->info(' Removing Documentation folder');
         echo exec('rm -rf ' . $path . '/documentation');
@@ -232,7 +232,7 @@ class NewVersion extends Command
         $this->info(' Removing laraupdater and upload.sh file');
         echo exec('rm -rf ' . $path . '/laraupdater.json');
         echo exec('rm -rf ' . $path . '/upload.sh');
-        
+
         $this->info(' gitlab_Ci');
         echo exec('rm -rf ' . $path . '/.gitlab-ci.yml');
 
@@ -242,7 +242,7 @@ class NewVersion extends Command
         $this->info(' Copying version to know the version to version.txt file');
         echo exec('echo ' . $version . '>> ' . $path . '/public/version.txt');
 
-        $this->comment("\n\n" . '------Emptying Modules Directroy------'."\n\n");
+        $this->comment("\n\n" . '------Emptying Modules Directroy------' . "\n\n");
         echo exec('rm -rf ' . $path . '/Modules/*');
 
         return $path;
@@ -255,7 +255,7 @@ class NewVersion extends Command
         try {
             Artisan::call('debugbar:clear');
         } catch (\Exception $exception) {
-            $this->info(' Debugbar not present');
+            $this->info(' Debugbar not present' . $exception->getMessage());
         }
 
         $this->info(' php artisan vendor:cleanup');
@@ -269,16 +269,16 @@ class NewVersion extends Command
 
         $this->info(' php artisan config:clear');
         Artisan::call('config:clear');
-        
+
         $this->info('php artisan up');
         Artisan::call('up');
-        
+
     }
 
     private function deleteDir($dirPath)
     {
 
-        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+        if (!str_ends_with($dirPath, '/')) {
             $dirPath .= '/';
         }
 
@@ -293,8 +293,9 @@ class NewVersion extends Command
                 echo exec('rm -rf ' . $file);
                 self::deleteDir($file);
 
-            } else {
-                if (strpos($file, 'feature-') !== false || strpos($file, '.gitignore') !== false) {
+            }
+            else {
+                if (str_contains($file, 'feature-') || str_contains($file, '.gitignore')) {
                     continue;
                 }
 

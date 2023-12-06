@@ -3,8 +3,10 @@
 namespace Froiden\Envato\Traits;
 
 use Carbon\Carbon;
+use Froiden\Envato\Functions\EnvatoUpdate;
 use Froiden\Envato\Helpers\Reply;
-use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -28,27 +30,28 @@ trait AppBoot
     /**
      * @return bool
      * Check if Purchase code is stored in settings table and is verified
+     * @throws FileNotFoundException
      */
     public function isLegal()
     {
 
         $this->setSetting();
         $domain = \request()->getHost();
-        
+
         if (in_array($domain, ['localhost', '127.0.0.1', '::1'])) {
             return true;
         }
 
-        // Return true if its running on test domain of .test domain
-        if (strpos($domain, '.test') !== false) {
+        // Return true if it's running on test domain of .test domain
+        if (str_contains($domain, '.test')) {
             return true;
         }
 
-        // Return true if its running on test domain of .ngrok domain
-        if (strpos($domain, 'ngrok') !== false) {
+        // Return true if it's running on test domain of .ngrok domain
+        if (str_contains($domain, 'ngrok')) {
             return true;
         }
-        
+
         if (is_null($this->appSetting->purchase_code)) {
             return false;
         }
@@ -65,10 +68,10 @@ trait AppBoot
         ];
 
         //  recruit-saas, recruit, appointo
-        $companiesEmailArray = [ '24061995', '22336912', '22989501'];
+        $companiesEmailArray = ['24061995', '22336912', '22989501'];
 
         // worksuite, worksuite-saas, hrm-saas, hrm, knap
-        $emailArray = ['23263417', '20052522','23400912', '11309213', '19665246'];
+        $emailArray = ['23263417', '20052522', '23400912', '11309213', '19665246'];
 
         if (in_array($data['itemId'], $companiesEmailArray)) {
             $data['email'] = $this->appSetting->company_email;
@@ -77,25 +80,12 @@ trait AppBoot
             $data['email'] = $this->appSetting->email;
         }
 
-        if (in_array($data['itemId'], $companiesEmailArray)) {
-            $data['email'] = $this->appSetting->company_email;
-        }
-        elseif (in_array($data['itemId'], $emailArray)) {
-            $data['email'] = $this->appSetting->email;
+        if ($this->shouldSkipLicenseCheck()) {
+            return true;
         }
 
-        if (Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at')) {
+        $response = EnvatoUpdate::curl($data);
 
-            if(!is_null($this->appSetting->last_license_verified_at)){
-
-                // If last license checked is today then do not check again for today
-                if(Carbon::parse($this->appSetting->last_license_verified_at)->isSameDay(now())){
-                    return true;
-                }
-            }
-        }
-
-        $response = $this->curl($data);
         $this->saveSupportSettings($response);
 
         $this->saveLastVerifiedAt($this->appSetting->purchase_code);
@@ -115,6 +105,19 @@ trait AppBoot
     }
 
     /**
+     * / If last license checked is today then do not check again for today
+     * @return bool
+     */
+    private function shouldSkipLicenseCheck(): bool
+    {
+        $lastVerifiedAt = $this->appSetting->last_license_verified_at;
+
+        return Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at') &&
+            !is_null($lastVerifiedAt) &&
+            Carbon::parse($lastVerifiedAt)->isSameDay(now());
+    }
+
+    /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * Show verify page for verification
      */
@@ -127,6 +130,7 @@ trait AppBoot
      * @param Request $request
      * @return array
      * Send request on froiden envato server to validate
+     * @throws FileNotFoundException
      */
     public function purchaseVerified(Request $request)
     {
@@ -155,6 +159,7 @@ trait AppBoot
 
         $setting->save();
     }
+
     /**
      * @param $purchaseCode
      */
@@ -162,11 +167,13 @@ trait AppBoot
     {
         $this->setSetting();
         $setting = $this->appSetting;
+
         if (Schema::hasColumn($this->appSetting->getTable(), 'last_license_verified_at')) {
             $setting->last_license_verified_at = now();
         }
 
         $setting->save();
+
     }
 
     public function saveSupportSettings($response)
@@ -178,7 +185,7 @@ trait AppBoot
         }
 
         if (Schema::hasColumn($this->appSetting->getTable(), 'license_type') && isset($response['license_type'])) {
-            if($response['license_type'] !== $this->appSetting->license_type){
+            if ($response['license_type'] !== $this->appSetting->license_type) {
                 $this->appSetting->license_type = $response['license_type'] ?? null;
                 $this->appSetting->save();
             }
@@ -189,44 +196,12 @@ trait AppBoot
         }
     }
 
-    /**
-     * @param $postData
-     * @return mixed
-     * Curl post to the server
-     */
-    public function curl($postData)
-    {
-        // Verify purchase
-
-        try {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, config('froiden_envato.verify_url'));
-
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-            // Object Object Error for verification
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $server_output = curl_exec($ch);
-            $response = json_decode($server_output, true);
-            curl_close($ch);
-
-            return $response;
-        } catch (\Exception $e) {
-
-            return [
-                'status' => 'success',
-                'messages' => 'Your purchase code is successfully verified'
-            ];
-        }
-    }
 
     /**
      * @param $purchaseCode
      * @param bool $savePurchaseCode
      * @return mixed
+     * @throws FileNotFoundException
      */
     private function getServerData($purchaseCode, $savePurchaseCode = true)
     {
@@ -241,7 +216,8 @@ trait AppBoot
         ];
 
         // Send request to froiden server to validate the license
-        $response = $this->curl($postData);
+        $response = EnvatoUpdate::curl($postData);
+
         $this->saveSupportSettings($response);
 
         if ($response && $response['status'] === 'success') {
@@ -274,15 +250,16 @@ trait AppBoot
     }
 
     /**
-     * @param $type
-     * Type = closed_permanently_button_pressed,already_reviewed_button_pressed
-     *
+     * @param $buttonPressedType
+     * @return mixed|string[]
      */
     public function hideReviewModal($buttonPressedType)
     {
         $this->setSetting();
+
         $this->appSetting->show_review_modal = 0;
         $this->appSetting->save();
+
         if (is_null($this->appSetting->purchase_code)) {
             return [
                 'status' => 'success',
@@ -301,13 +278,9 @@ trait AppBoot
             $url = str_replace('verify-purchase', 'button-pressed', config('froiden_envato.verify_url'));
             $url = $url . '/' . $this->appSetting->purchase_code . '/' . $buttonPressedType;
 
-            $client = new Client();
-            $response = $client->request('GET', $url);
-            $statusCode = $response->getStatusCode();
-            $content = $response->getBody();
+            return EnvatoUpdate::getRemoteData($url);
 
-            return json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (\Exception|GuzzleException $e) {
 
             return [
                 'status' => 'success',
@@ -327,8 +300,8 @@ trait AppBoot
             return true;
         }
 
-        // Return true if its running on test domain of .dev domain
-        if (strpos($domain, '.test') !== false || strpos($domain, '.dev') !== false || strpos($domain, '.app') !== false) {
+        // Return true if it's running on test domain of .dev domain
+        if (str_contains($domain, '.test') || str_contains($domain, '.dev') || str_contains($domain, '.app')) {
             return true;
         }
 
@@ -357,7 +330,8 @@ trait AppBoot
                 $data['email'] = $this->appSetting->email;
             }
 
-            $this->curl($data);
+            EnvatoUpdate::curl($data);
+
         }
     }
 

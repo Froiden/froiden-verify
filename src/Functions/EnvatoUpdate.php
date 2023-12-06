@@ -4,6 +4,7 @@ namespace Froiden\Envato\Functions;
 
 use GuzzleHttp\Client;
 use Carbon\Carbon;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\File;
 
 class EnvatoUpdate
@@ -126,7 +127,9 @@ class EnvatoUpdate
     }
 
 
-
+    /**
+     * @throws GuzzleException
+     */
     public static function getRemoteData($url, $method = 'GET')
     {
         if (cache()->has($url)) {
@@ -134,7 +137,7 @@ class EnvatoUpdate
         }
 
         $client = new Client();
-        $res = $client->request('GET', $url, ['verify' => false]);
+        $res = $client->request($method, $url, ['verify' => false]);
         $body = $res->getBody();
 
         $content = json_decode($body, true);
@@ -142,6 +145,36 @@ class EnvatoUpdate
 
         return $content;
 
+    }
+
+
+    public static function curl($postData)
+    {
+        // Verify purchase
+
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, config('froiden_envato.verify_url'));
+
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+            // Object Object Error for verification
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $server_output = curl_exec($ch);
+            $response = json_decode($server_output, true);
+            curl_close($ch);
+
+            return $response;
+        } catch (\Exception $e) {
+
+            return [
+                'status' => 'success',
+                'messages' => 'Your purchase code is successfully verified'
+            ];
+        }
     }
 
 
