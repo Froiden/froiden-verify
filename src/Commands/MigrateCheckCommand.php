@@ -2,7 +2,6 @@
 
 namespace Froiden\Envato\Commands;
 
-use File;
 use Illuminate\Database\Console\Migrations\BaseCommand;
 
 class MigrateCheckCommand extends BaseCommand
