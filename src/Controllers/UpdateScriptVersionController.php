@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Session;
 use Zip;
 
 class UpdateScriptVersionController extends Controller
@@ -91,7 +90,7 @@ class UpdateScriptVersionController extends Controller
     public function install()
     {
         if (!$this->checkPermission()) {
-            return Reply::error("ACTION NOT ALLOWED.");
+            return Reply::error('ACTION NOT ALLOWED.');
         }
 
         $lastVersionInfo = $this->getLastVersion();
@@ -162,9 +161,7 @@ class UpdateScriptVersionController extends Controller
     */
     public function getCurrentVersion()
     {
-        $version = File::get(public_path() . '/version.txt');
-
-        return $version;
+        return File::get(public_path() . '/version.txt');
     }
 
     /*
