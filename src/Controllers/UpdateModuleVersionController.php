@@ -26,6 +26,7 @@ class UpdateModuleVersionController extends Controller
     {
         $settingInstance = config(strtolower($module) . '.setting');
         return $this->appSetting = $settingInstance::first();
+
     }
 
     private function backup($module)

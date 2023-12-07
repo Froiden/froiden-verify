@@ -43,15 +43,14 @@ trait UpdateVersion
     private function changePhpConfigs()
     {
         try {
-            if (function_exists('ini_set')) {
-                // set unlimited
-                ini_set('max_execution_time', 0);
-                ini_set('memory_limit', -1);
-            }
+            ini_set('max_execution_time', 0); // Set unlimited execution time
+            ini_set('memory_limit', -1);      // Set unlimited memory limit
         } catch (\Exception $e) {
-            $e->getMessage();
+            // Log or report the exception message
+            logger()->error('Error changing PHP configurations: ' . $e->getMessage());
         }
     }
+
 
     public function formatSizeUnits($bytes)
     {
