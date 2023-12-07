@@ -1,8 +1,9 @@
 <?php
 
 use Froiden\Envato\Controllers\PurchaseVerificationController;
-use Froiden\Envato\Controllers\UpdateScriptVersionController;
 use Froiden\Envato\Controllers\UpdateModuleVersionController;
+use Froiden\Envato\Controllers\UpdateScriptVersionController;
+use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'web'], function () {
 
@@ -32,5 +33,6 @@ Route::group(['middleware' => 'web'], function () {
         Route::get('update-version/downloadPercentModule/{module}', [UpdateModuleVersionController::class, 'downloadPercent'])->name('updateVersion.downloadPercentModule');
         Route::get('update-version/checkIfFileExtractedModule/{module}', [UpdateModuleVersionController::class, 'checkIfFileExtracted'])->name('updateVersion.checkIfFileExtractedModule');
         Route::get('update-version/installModule/{module}', [UpdateModuleVersionController::class, 'install'])->name('updateVersion.installModule');
+        Route::get('update-version/refreshModule/{module}', [UpdateModuleVersionController::class, 'refresh'])->name('updateVersion.refreshModule');
     });
 });

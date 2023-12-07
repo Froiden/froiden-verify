@@ -4,42 +4,41 @@ namespace Froiden\Envato\Controllers;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Froiden\Envato\Functions\EnvatoUpdate;
 use Froiden\Envato\Helpers\Reply;
+use Froiden\Envato\Traits\UpdateVersion;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Macellan\Zip\Zip;
 
 class UpdateModuleVersionController extends Controller
 {
+    use UpdateVersion;
 
     public function __construct()
     {
         parent::__construct();
         $this->changePhpConfigs();
-    }
+        $this->appSetting = null;
+        $module = request()->route('module');
 
-    private $tmp_backup_dir = null;
-
-    private function checkPermission()
-    {
-        return config('froiden_envato.allow_users_id');
+        if ($module) {
+            $this->moduleSetting($module);
+        }
     }
 
     private function moduleSetting($module)
     {
         $settingInstance = config(strtolower($module) . '.setting');
-        $fetchSetting = $settingInstance::first();
-        $this->moduleSetting = $fetchSetting;
-        return $fetchSetting;
+        return $this->appSetting = $settingInstance::first();
     }
 
     public function checkModuleSupport($module)
     {
-        $this->moduleSetting($module);
-
-        $supportedUntil = Carbon::parse($this->moduleSetting->supported_until);
+        $supportedUntil = Carbon::parse($this->appSetting->supported_until);
 
         if ($supportedUntil->isPast()) {
             return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.',
@@ -56,9 +55,7 @@ class UpdateModuleVersionController extends Controller
     */
     public function update($module)
     {
-        $this->moduleSetting($module);
-
-        if (Carbon::parse($this->moduleSetting->supported_until)->isPast()) {
+        if (Carbon::parse($this->appSetting->supported_until)->isPast()) {
             return Reply::error('Please renew your support for one-click updates.');
         }
 
@@ -115,35 +112,12 @@ class UpdateModuleVersionController extends Controller
 
         $zip = Zip::open($update_path);
 
-        // $zip->extract(module_path($module));
-        $zip->extract(base_path('Modules/'));
-        // $this->unzipModule($zip, $module);
         // extract whole archive
+        $zip->extract(base_path('Modules/'));
+
         $this->clean();
         File::delete(public_path() . '/percent-module-download.txt');
         return Reply::success('Zip extracted successfully. Now installing...');
-    }
-
-    private function unzipModule($zip, $module)
-    {
-        $codeCanyonPath = storage_path('app') . '/Modules/Update';
-        $zip->extract($codeCanyonPath);
-        $files = File::allfiles($codeCanyonPath);
-
-        foreach ($files as $file) {
-
-            if (str_contains($file->getRelativePathname(), '.zip')) {
-                $filePath = $file->getRelativePathname();
-                $zip = Zip::open($codeCanyonPath . '/' . $filePath);
-                $zip->extract(base_path('Modules/'));
-
-                return true;
-            }
-        }
-
-        $zip->extract(base_path('Modules/'));
-
-        return true;
     }
 
     /*
@@ -214,7 +188,7 @@ class UpdateModuleVersionController extends Controller
     {
         $url = config(strtolower($module) . '.updater_file_path');
 
-        return $this->getRemoteData($url);
+        return EnvatoUpdate::getRemoteData($url);
     }
 
     private function backup($module)
@@ -251,30 +225,6 @@ class UpdateModuleVersionController extends Controller
         return true;
     }
 
-    public function formatSizeUnits($bytes)
-    {
-        if ($bytes >= 1073741824) {
-            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        elseif ($bytes >= 1048576) {
-            $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        }
-        elseif ($bytes >= 1024) {
-            $bytes = number_format($bytes / 1024, 2) . ' KB';
-        }
-        elseif ($bytes > 1) {
-            $bytes = $bytes . ' bytes';
-        }
-        elseif ($bytes == 1) {
-            $bytes = $bytes . ' byte';
-        }
-        else {
-            $bytes = '0 bytes';
-        }
-
-        return $bytes;
-    }
-
     public function downloadPercent(Request $request)
     {
         $percent = File::get(public_path() . '/percent-module-download.txt');
@@ -304,87 +254,39 @@ class UpdateModuleVersionController extends Controller
         }
     }
 
-    public function clean()
+    public function refresh($module)
     {
-        $user = auth()->id();
-        $this->configClear();
+        $domain = \request()->getHost();
 
-        session()->flush();
-        cache()->flush();
+        $data = [
+            'purchaseCode' => $this->appSetting->purchase_code,
+            'email' => '',
+            'domain' => $domain,
+            'itemId' => config('froiden_envato.envato_item_id'),
+            'appUrl' => urlencode(url()->full()),
+            'version' => $this->getCurrentVersion($module),
+        ];
 
-        // login user
-        auth()->loginUsingId($user);
+        $response = EnvatoUpdate::curl($data);
+        info($response);
+        $this->saveSupportSettings($response);
+
+        return Reply::success('Refreshed successfully.');
     }
 
-    public function configClear()
+    public function saveSupportSettings($response)
     {
-        Artisan::call('config:clear');
-        Artisan::call('route:clear');
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
-    }
-
-    public function updateDatabase()
-    {
-        Artisan::call('migrate', array('--force' => true));
-
-        return 'Database updated successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
-    }
-
-    public function clearCache()
-    {
-        $this->configClear();
-
-        session()->flush();
-        cache()->flush();
-
-        if (request()->ajax()) {
-            return Reply::success('Cache cleared successfully.');
+        if (isset($response['supported_until']) && ($response['supported_until'] !== $this->appSetting->supported_until)) {
+            $this->appSetting->supported_until = $response['supported_until'];
         }
 
-        return 'Cache cleared successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
-    }
-
-    public function refreshCache()
-    {
-        Artisan::call('optimize');
-        Artisan::call('route:clear');
-
-        if (request()->ajax()) {
-            return Reply::success('Cache refreshed successfully.');
-        }
-
-        return 'Cache refreshed successfully. <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click here to Login</a>';
-    }
-
-    private function changePhpConfigs()
-    {
-        try {
-            if (function_exists('ini_set')) {
-                // set unlimited
-                ini_set('max_execution_time', 0);
-                ini_set('memory_limit', -1);
+        if (Schema::hasColumn($this->appSetting->getTable(), 'license_type') && isset($response['license_type'])) {
+            if ($response['license_type'] !== $this->appSetting->license_type) {
+                $this->appSetting->license_type = $response['license_type'] ?? null;
             }
-        } catch (\Exception $e) {
-            $e->getMessage();
-        }
-    }
-
-    private function getRemoteData($url)
-    {
-        $client = new Client();
-        $res = $client->request('GET', $url, ['verify' => false]);
-        $lastVersion = $res->getBody();
-
-        $content = json_decode($lastVersion, true);
-
-        return $content;
-
-        if (!cache()->has($url)) {
-            cache([$url => $content], now()->addMinutes(5));
         }
 
-        return cache($url);
+        $this->appSetting->save();
     }
 
 }

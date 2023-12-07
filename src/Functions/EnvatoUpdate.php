@@ -147,7 +147,6 @@ class EnvatoUpdate
 
     }
 
-
     public static function curl($postData)
     {
         // Verify purchase
@@ -176,6 +175,5 @@ class EnvatoUpdate
             ];
         }
     }
-
 
 }
