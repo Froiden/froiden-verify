@@ -13,6 +13,7 @@ use Macellan\Zip\Zip;
 
 trait UpdateVersion
 {
+
     private $tmp_backup_dir = null;
 
     private function checkPermission()
@@ -111,6 +112,10 @@ trait UpdateVersion
 
     public function downloadPercent($module = null)
     {
+        if (!File::exists(public_path() . '/percent-download.txt')) {
+            return true;
+        }
+
         return File::get(public_path() . '/percent-download.txt');
     }
 
@@ -118,6 +123,7 @@ trait UpdateVersion
     {
         if ($module) {
             File::put(module_path($module, 'version.txt'), $last); // UPDATE $current_version to last version
+
             return;
         }
 
@@ -275,7 +281,6 @@ trait UpdateVersion
             $status = Artisan::call('migrate:check');
 
             if ($status) {
-                sleep(3); // TODO: remove this line
                 Artisan::call('migrate', array('--force' => true)); // migrate database
             }
 
@@ -397,9 +402,9 @@ trait UpdateVersion
 
         if ($supportedUntil->isPast()) {
             return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.',
-            errorData: [
-                'product_url' => $productUrl,
-            ]);
+                errorData: [
+                    'product_url' => $productUrl,
+                ]);
         }
 
         return Reply::success('Update available.');
