@@ -261,6 +261,7 @@ class UpdateScriptVersionController extends Controller
     public function checkIfFileExtracted()
     {
         $lastVersionInfo = $this->getLastVersion();
+
         if ($lastVersionInfo['version'] == $this->getCurrentVersion()) {
 
             $status = Artisan::call('migrate:check');
@@ -354,7 +355,10 @@ class UpdateScriptVersionController extends Controller
             $this->appSetting->update(['last_license_verified_at' => now()->subDays(2)]);
         }
 
-        $url = config('froiden_envato.latest_version_file') . '/' . $this->appSetting->purchase_code;
+        $lastVersionInfo = $this->getLastVersion();
+        $archive = $lastVersionInfo['archive'];
+
+        $url = config('froiden_envato.latest_version_file') . '/' . $this->appSetting->purchase_code . '/' . $archive;
 
         return EnvatoUpdate::getRemoteData($url);
 
