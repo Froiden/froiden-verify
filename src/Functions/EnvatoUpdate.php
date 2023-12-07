@@ -126,7 +126,6 @@ class EnvatoUpdate
         return $updateVersionInfo;
     }
 
-
     /**
      * @throws GuzzleException
      */
