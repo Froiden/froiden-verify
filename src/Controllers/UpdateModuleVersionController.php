@@ -35,7 +35,7 @@ class UpdateModuleVersionController extends Controller
         return $fetchSetting;
     }
 
-    public function chekModuleSupport($module)
+    public function checkModuleSupport($module)
     {
         $this->moduleSetting($module);
 

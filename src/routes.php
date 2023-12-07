@@ -26,7 +26,7 @@ Route::group(['middleware' => 'web'], function () {
 
 
         // For modules update
-        Route::get('update-version/chekModuleSupport/{module}', [UpdateModuleVersionController::class, 'chekModuleSupport'])->name('updateVersion.chekModuleSupport');
+        Route::get('update-version/checkModuleSupport/{module}', [UpdateModuleVersionController::class, 'checkModuleSupport'])->name('updateVersion.checkModuleSupport');
         Route::get('update-version/updateModule/{module}', [UpdateModuleVersionController::class, 'update'])->name('updateVersion.updateModule');
         Route::get('update-version/downloadModule/{module}', [UpdateModuleVersionController::class, 'download'])->name('updateVersion.downloadModule');
         Route::get('update-version/downloadPercentModule/{module}', [UpdateModuleVersionController::class, 'downloadPercent'])->name('updateVersion.downloadPercentModule');
