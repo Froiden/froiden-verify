@@ -73,6 +73,4 @@ class FroidenApp
         return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=extend_6month';
     }
 
-
-
 }

@@ -299,7 +299,7 @@ trait UpdateVersion
         $url = config('froiden_envato.updater_file_path');
 
         if ($module) {
-            $url = config(strtolower($module) . '.updater_file_path');
+            $url = $this->replaceWithModuleProductName($module, $url);
         }
 
         return FroidenApp::getRemoteData($url);
@@ -344,7 +344,7 @@ trait UpdateVersion
         $url = config('froiden_envato.latest_version_file') . '/' . $this->appSetting->purchase_code . '/' . $archive;
 
         if ($module) {
-            $url = config(strtolower($module) . '.latest_version_file') . '/' . $this->appSetting->purchase_code . '/' . $archive;
+            $url = $this->replaceWithModuleItemId($module, $url);
         }
 
         return FroidenApp::getRemoteData($url);
@@ -367,7 +367,7 @@ trait UpdateVersion
             'purchaseCode' => $this->appSetting->purchase_code,
             'email' => '',
             'domain' => request()->getHost(),
-                        'itemId' => $itemId,
+            'itemId' => $itemId,
             'appUrl' => urlencode(url()->full()),
             'version' => $this->getCurrentVersion($module),
         ];
@@ -407,20 +407,28 @@ trait UpdateVersion
     public function checkModuleSupport($module = null)
     {
         $supportedUntil = Carbon::parse($this->appSetting->supported_until);
-        $productUrl = config('froiden_envato.envato_product_url');
-
-        if ($module) {
-            $productUrl = config(strtolower($module) . '.envato_product_url');
-        }
 
         if ($supportedUntil->isPast()) {
-            return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.',
-                errorData: [
-                    'product_url' => $productUrl,
-                ]);
+            return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.');
         }
 
         return Reply::success('Update available.');
+    }
+
+    private function replaceWithModuleItemId($module, $string)
+    {
+        $appIemId = config('froiden_envato.envato_item_id');
+        $moduleItemId = config(strtolower($module) . '.envato_item_id');
+
+        return str_replace($appIemId, $moduleItemId, $string);
+    }
+
+    private function replaceWithModuleProductName($module, $string)
+    {
+        $appProductName = config('froiden_envato.envato_product_name');
+        $moduleProductName = config(strtolower($module) . '.script_name');
+
+        return str_replace($appProductName, $moduleProductName, $string);
     }
 
 }
