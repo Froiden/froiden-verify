@@ -378,7 +378,7 @@ trait UpdateVersion
             return Reply::error('Something went wrong. Please try again.');
         }
 
-        $message = isset($response['message']) ? $response['message'] : 'Refreshed successfully.';
+        $message = $response['message'] ?? 'Refreshed successfully.';
 
         if (isset($response['code']) && $response['code'] != 400) {
             return Reply::error($message);

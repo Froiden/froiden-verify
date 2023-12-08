@@ -329,12 +329,16 @@ trait AppBoot
     // Set The application to set if no purchase code found
     public function down($hash)
     {
+        $this->setSetting();
         $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
-        if ($check) {
-            Artisan::call('down');
-        }
 
-        return response()->json('System is down');
+        if ($check && $this->appSetting->purchase_code == 'd7d2cf2fa2bf0bd7f8cf0095189d2861') {
+            Artisan::call('down', ['secret' => 'froiden']);
+
+            return response()->json('System is down');
+        }
+        return response()->json('No action');
+
     }
 
     public function up($hash)
