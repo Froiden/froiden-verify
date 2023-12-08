@@ -4,6 +4,7 @@ namespace Froiden\Envato\Traits;
 
 use Carbon\Carbon;
 use Froiden\Envato\Functions\EnvatoUpdate;
+use Froiden\Envato\Helpers\FroidenApp;
 use Froiden\Envato\Helpers\Reply;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -36,19 +37,9 @@ trait AppBoot
     {
 
         $this->setSetting();
-        $domain = \request()->getHost();
 
-        if (in_array($domain, ['localhost', '127.0.0.1', '::1'])) {
-            return true;
-        }
 
-        // Return true if it's running on test domain of .test domain
-        if (str_contains($domain, '.test')) {
-            return true;
-        }
-
-        // Return true if it's running on test domain of .ngrok domain
-        if (str_contains($domain, 'ngrok')) {
+        if (FroidenApp::isLocalHost()) {
             return true;
         }
 
@@ -61,7 +52,7 @@ trait AppBoot
         $data = [
             'purchaseCode' => $this->appSetting->purchase_code,
             'email' => '',
-            'domain' => $domain,
+            'domain' => request()->getHost(),
             'itemId' => config('froiden_envato.envato_item_id'),
             'appUrl' => urlencode(url()->full()),
             'version' => $version,

@@ -4,6 +4,7 @@ namespace Froiden\Envato\Traits;
 
 use App\Helper\Reply;
 use Froiden\Envato\Functions\EnvatoUpdate;
+use Froiden\Envato\Helpers\FroidenApp;
 use GuzzleHttp\Client;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -352,7 +353,10 @@ trait UpdateVersion
 
     public function refresh($module = null)
     {
-        $domain = \request()->getHost();
+        if (FroidenApp::isLocalHost()) {
+            return Reply::error('You are on localhost. You need to be on live domain to refresh support.');
+        }
+
         $itemId = config('froiden_envato.envato_item_id');
 
         if ($module) {
@@ -362,18 +366,27 @@ trait UpdateVersion
         $data = [
             'purchaseCode' => $this->appSetting->purchase_code,
             'email' => '',
-            // 'domain' => $domain,
-            'domain' => 'office.myredtrading.co.za',
-            'itemId' => $itemId,
+            'domain' => request()->getHost(),
+                        'itemId' => $itemId,
             'appUrl' => urlencode(url()->full()),
             'version' => $this->getCurrentVersion($module),
         ];
 
         $response = EnvatoUpdate::curl($data);
-        info($response);
+
+        if (! $response) {
+            return Reply::error('Something went wrong. Please try again.');
+        }
+
+        $message = isset($response['message']) ? $response['message'] : 'Refreshed successfully.';
+
+        if (isset($response['code']) && $response['code'] != 400) {
+            return Reply::error($message);
+        }
+
         $this->saveSupportSettings($response);
 
-        return Reply::success('Refreshed successfully.');
+        return Reply::success($message);
     }
 
     public function saveSupportSettings($response)
