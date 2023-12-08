@@ -58,17 +58,17 @@ class FroidenApp
 
     }
 
-    public static function buyExtendedUrl($envatoId)
+    public static function buyExtendedUrl($envatoId): string
     {
         return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?license=extended';
     }
 
-    public static function renewSupportUrl($envatoId)
+    public static function renewSupportUrl($envatoId): string
     {
         return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=renew_6month';
     }
 
-    public static function extendSupportUrl($envatoId)
+    public static function extendSupportUrl($envatoId): string
     {
         return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=extend_6month';
     }
