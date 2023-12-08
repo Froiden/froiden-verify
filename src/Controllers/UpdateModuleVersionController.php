@@ -20,6 +20,9 @@ class UpdateModuleVersionController extends Controller
         if ($module) {
             $this->moduleSetting($module);
         }
+
+
+
     }
 
     private function moduleSetting($module)
