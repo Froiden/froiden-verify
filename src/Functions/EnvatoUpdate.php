@@ -176,19 +176,4 @@ class EnvatoUpdate
         }
     }
 
-    public static function buyExtendedUrl($envatoId)
-    {
-        return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?license=extended';
-    }
-
-    public static function renewSupportUrl($envatoId)
-    {
-        return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=renew_6month';
-    }
-
-    public static function extendSupportUrl($envatoId)
-    {
-        return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=extend_6month';
-    }
-
 }
