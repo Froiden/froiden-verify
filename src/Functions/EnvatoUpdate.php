@@ -2,6 +2,7 @@
 
 namespace Froiden\Envato\Functions;
 
+use Froiden\Envato\Helpers\FroidenApp;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
@@ -81,7 +82,7 @@ class EnvatoUpdate
 
     public static function plugins()
     {
-        return self::getRemoteData(config('froiden_envato.plugins_url'));
+        return FroidenApp::getRemoteData(config('froiden_envato.plugins_url'));
     }
 
     public static function updateVersionInfo()
@@ -89,7 +90,7 @@ class EnvatoUpdate
         $updateVersionInfo = [];
         try {
             // Get Data from server for download files
-            $lastVersion = self::getRemoteData(config('froiden_envato.updater_file_path'));
+            $lastVersion = FroidenApp::getRemoteData(config('froiden_envato.updater_file_path'));
 
             if ($lastVersion['version'] > File::get('version.txt')) {
                 $updateVersionInfo['lastVersion'] = $lastVersion['version'];
@@ -104,7 +105,7 @@ class EnvatoUpdate
         try {
             // Get data of Logs
 
-            $lastVersionLog = self::getRemoteData(config('froiden_envato.versionLog') . '/' . File::get('version.txt'));
+            $lastVersionLog = FroidenApp::getRemoteData(config('froiden_envato.versionLog') . '/' . File::get('version.txt'));
 
             foreach ($lastVersionLog as $item) {
                 // Ignore duplicate of latest version
@@ -127,25 +128,6 @@ class EnvatoUpdate
         return $updateVersionInfo;
     }
 
-    /**
-     * @throws GuzzleException
-     */
-    public static function getRemoteData($url, $method = 'GET')
-    {
-        if (cache()->has($url)) {
-            return cache($url);
-        }
-
-        $client = new Client();
-        $res = $client->request($method, $url, ['verify' => false]);
-        $body = $res->getBody();
-
-        $content = json_decode($body, true);
-        cache([$url => $content], now()->addMinutes(30));
-
-        return $content;
-
-    }
 
     public static function curl($postData)
     {

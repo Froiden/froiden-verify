@@ -302,7 +302,7 @@ trait UpdateVersion
             $url = config(strtolower($module) . '.updater_file_path');
         }
 
-        return EnvatoUpdate::getRemoteData($url);
+        return FroidenApp::getRemoteData($url);
     }
 
     /*
@@ -347,7 +347,7 @@ trait UpdateVersion
             $url = config(strtolower($module) . '.latest_version_file') . '/' . $this->appSetting->purchase_code . '/' . $archive;
         }
 
-        return EnvatoUpdate::getRemoteData($url);
+        return FroidenApp::getRemoteData($url);
 
     }
 

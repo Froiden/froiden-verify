@@ -2,6 +2,9 @@
 
 namespace Froiden\Envato\Helpers;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+
 class FroidenApp
 {
 
@@ -35,6 +38,26 @@ class FroidenApp
         return false;
     }
 
+    /**
+     * @throws GuzzleException
+     */
+    public static function getRemoteData($url, $method = 'GET')
+    {
+        if (cache()->has($url)) {
+            return cache($url);
+        }
+
+        $client = new Client();
+        $res = $client->request($method, $url, ['verify' => false]);
+        $body = $res->getBody();
+
+        $content = json_decode($body, true);
+        cache([$url => $content], now()->addMinutes(30));
+
+        return $content;
+
+    }
+
     public static function buyExtendedUrl($envatoId)
     {
         return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?license=extended';
@@ -49,5 +72,7 @@ class FroidenApp
     {
         return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=extend_6month';
     }
+
+
 
 }

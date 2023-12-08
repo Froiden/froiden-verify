@@ -269,7 +269,7 @@ trait AppBoot
             $url = str_replace('verify-purchase', 'button-pressed', config('froiden_envato.verify_url'));
             $url = $url . '/' . $this->appSetting->purchase_code . '/' . $buttonPressedType;
 
-            return EnvatoUpdate::getRemoteData($url);
+            return FroidenApp::getRemoteData($url);
 
         } catch (\Exception|GuzzleException $e) {
 

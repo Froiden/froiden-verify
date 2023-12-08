@@ -57,6 +57,6 @@
     </div>
 @else
     <div class="alert alert-success col-md-12">
-        <div class="col-md-12">You have latest version of this app.</div>
+        <div class="col-md-12">You have the latest version of this app.</div>
     </div>
 @endif
