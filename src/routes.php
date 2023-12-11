@@ -25,5 +25,6 @@ Route::group(['middleware' => 'web'], function () {
         Route::get('update-version/install/{module?}', [UpdateScriptVersionController::class, 'install'])->name('updateVersion.install');
         Route::get('update-version/checkSupport/{module?}', [UpdateScriptVersionController::class, 'checkSupport'])->name('updateVersion.checkSupport');
         Route::get('update-version/refresh/{module?}', [UpdateScriptVersionController::class, 'refresh'])->name('updateVersion.refresh');
+        Route::post('update-version/notify/{module}', [UpdateScriptVersionController::class, 'notify'])->name('updateVersion.notify');
     });
 });

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Froiden\Envato\Functions\EnvatoUpdate;
 use Froiden\Envato\Helpers\FroidenApp;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -446,6 +447,12 @@ class UpdateScriptVersionController extends Controller
         $moduleProductName = config(strtolower($module) . '.script_name');
 
         return str_replace($appProductName, $moduleProductName, $string);
+    }
+
+    public function notify(Request $request, $module)
+    {
+        $this->appSetting->update(['notify_update' => $request->status]);
+        return Reply::success('Notification settings updated successfully.');
     }
 
 }
