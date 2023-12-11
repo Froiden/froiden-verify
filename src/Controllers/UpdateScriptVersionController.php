@@ -170,15 +170,15 @@ class UpdateScriptVersionController extends Controller
             return Reply::error('ACTION NOT ALLOWED.');
         }
 
-        // Get information about the latest version
-        $lastVersionInfo = $this->getLastVersion($module);
-
-        // Check if the system is already updated to the latest version
-        if ($lastVersionInfo['version'] <= $this->getCurrentVersion($module)) {
-            return Reply::error('You ALREADY on the latest version!');
-        }
-
         try {
+            // Get information about the latest version
+            $lastVersionInfo = $this->getLastVersion($module);
+
+            // Check if the system is already updated to the latest version
+            if ($lastVersionInfo['version'] <= $this->getCurrentVersion($module)) {
+                return Reply::error('You ALREADY on the latest version!');
+            }
+
             // Set up temporary backup directory
             $this->tmp_backup_dir = base_path() . '/backup_' . date('Ymd');
 
@@ -202,7 +202,7 @@ class UpdateScriptVersionController extends Controller
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
         } catch (\Exception $e) {
             // Handle update error and try to restore to the old status
-            echo '<p>ERROR DURING UPDATE (!!check the update archive!!) --TRY to restore OLD status ........... </p>';
+            return Reply::error('ERROR DURING UPDATE (!!check the update archive!!) --TRY to restore OLD status ........... ' . $e->getMessage());
         }
     }
 
@@ -215,25 +215,29 @@ class UpdateScriptVersionController extends Controller
             return Reply::error('ACTION NOT ALLOWED.');
         }
 
-        $lastVersionInfo = $this->getLastVersion($module);
-        $archive = $lastVersionInfo['archive'];
+        try {
+            $lastVersionInfo = $this->getLastVersion($module);
+            $archive = $lastVersionInfo['archive'];
 
-        $update_path = config('froiden_envato.tmp_path') . '/' . $archive;
+            $update_path = config('froiden_envato.tmp_path') . '/' . $archive;
 
-        $zip = Zip::open($update_path);
+            $zip = Zip::open($update_path);
 
-        $path = base_path();
+            $path = base_path();
 
-        if ($module) {
-            $path = base_path('Modules/');
+            if ($module) {
+                $path = base_path('Modules/');
+            }
+
+            // extract whole archive
+            $zip->extract($path);
+
+            $this->clean();
+
+            File::delete(public_path() . '/percent-download.txt');
+        } catch (\Exception $e) {
+            return Reply::error($e->getMessage());
         }
-
-        // extract whole archive
-        $zip->extract($path);
-
-        $this->clean();
-
-        File::delete(public_path() . '/percent-download.txt');
 
         return Reply::success('Zip extracted successfully. Now installing...');
     }
@@ -247,24 +251,24 @@ class UpdateScriptVersionController extends Controller
             return Reply::error('ACTION NOT ALLOWED.');
         }
 
-        File::put(public_path() . '/percent-download.txt', '');
-
-        $getLastVersionFileUrl = $this->getLastVersionFileUrl($module);
-
-        if ($getLastVersionFileUrl['type'] == 'error') {
-            return Reply::error($getLastVersionFileUrl['message']);
-        }
-
-        $update_name = $getLastVersionFileUrl['version']['file_name'];
-
-        $filename_tmp = config('froiden_envato.tmp_path') . '/' . $update_name;
-
-        $downloadRemoteUrl = $getLastVersionFileUrl['url'];
-
-        $dlHandler = fopen($filename_tmp, 'w');
-
-        $client = new Client();
         try {
+            File::put(public_path() . '/percent-download.txt', '');
+
+            $getLastVersionFileUrl = $this->getLastVersionFileUrl($module);
+
+            if ($getLastVersionFileUrl['type'] == 'error') {
+                return Reply::error($getLastVersionFileUrl['message']);
+            }
+
+            $update_name = $getLastVersionFileUrl['version']['file_name'];
+
+            $filename_tmp = config('froiden_envato.tmp_path') . '/' . $update_name;
+
+            $downloadRemoteUrl = $getLastVersionFileUrl['url'];
+
+            $dlHandler = fopen($filename_tmp, 'w');
+
+            $client = new Client();
             $client->request('GET', $downloadRemoteUrl, [
                 'sink' => $dlHandler,
                 'progress' => function ($dl_total_size, $dl_size_so_far, $ul_total_size, $ul_size_so_far) {
