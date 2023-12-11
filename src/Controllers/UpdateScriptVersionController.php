@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Froiden\Envato\Functions\EnvatoUpdate;
 use Froiden\Envato\Helpers\FroidenApp;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -24,6 +25,7 @@ class UpdateScriptVersionController extends Controller
         // Get the setting and retrieve the app setting
         $setting = config('froiden_envato.setting');
         $this->appSetting = null;
+
         $this->changePhpConfigs();
         $module = request()->route('module');
 
@@ -241,6 +243,10 @@ class UpdateScriptVersionController extends Controller
     /*
     * Download Update from $update_baseurl to $tmp_path (local folder).
     */
+    /**
+     * @throws GuzzleException
+     * @throws \Exception
+     */
     public function download($module = null)
     {
         if (!$this->checkPermission()) {
