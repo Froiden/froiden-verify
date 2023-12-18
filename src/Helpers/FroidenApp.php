@@ -8,6 +8,8 @@ use GuzzleHttp\Exception\GuzzleException;
 class FroidenApp
 {
 
+    const CODECANYON_URL = 'https://codecanyon.net/checkout/from_item/';
+
     public static function isLocalHost(): bool
     {
         $domain = request()->getHost();
@@ -28,6 +30,11 @@ class FroidenApp
             '.local',
             'ngrok',
         ];
+
+        //Ignore of IP
+        if (ip2long($domain)) {
+            return true;
+        }
 
         foreach ($allowedDomains as $allowedDomain) {
             if (str_contains($domain, $allowedDomain)) {
@@ -60,17 +67,17 @@ class FroidenApp
 
     public static function buyExtendedUrl($envatoId): string
     {
-        return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?license=extended';
+        return self::CODECANYON_URL . $envatoId . '?license=extended';
     }
 
     public static function renewSupportUrl($envatoId): string
     {
-        return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=renew_6month';
+        return self::CODECANYON_URL . $envatoId . '?support=renew_6month';
     }
 
     public static function extendSupportUrl($envatoId): string
     {
-        return 'https://codecanyon.net/checkout/from_item/' . $envatoId . '?support=extend_6month';
+        return self::CODECANYON_URL . $envatoId . '?support=extend_6month';
     }
 
 }
