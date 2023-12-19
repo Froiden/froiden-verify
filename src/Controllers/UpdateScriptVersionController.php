@@ -204,7 +204,7 @@ class UpdateScriptVersionController extends Controller
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
         } catch (\Exception $e) {
             // Handle update error and try to restore to the old status
-            return Reply::error('ERROR DURING UPDATE (!!check the update archive!!) --TRY to restore OLD status ........... ' . $e->getMessage());
+            return Reply::error('ERROR DURING UPDATE : ' . $e->getMessage());
         }
     }
 
