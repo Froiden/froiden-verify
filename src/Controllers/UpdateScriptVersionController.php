@@ -17,6 +17,7 @@ use Macellan\Zip\Zip;
 
 class UpdateScriptVersionController extends Controller
 {
+
     private $tmp_backup_dir = null;
 
     public function __construct()
@@ -40,6 +41,7 @@ class UpdateScriptVersionController extends Controller
     private function moduleSetting($module)
     {
         $settingInstance = config(strtolower($module) . '.setting');
+
         return $this->appSetting = $settingInstance::first();
 
     }
@@ -402,7 +404,7 @@ class UpdateScriptVersionController extends Controller
 
         $response = EnvatoUpdate::curl($data);
 
-        if (! $response) {
+        if (!$response) {
             return Reply::error('Something went wrong. Please try again.');
         }
 
@@ -434,10 +436,24 @@ class UpdateScriptVersionController extends Controller
 
     public function checkSupport($module = null)
     {
+
+
+        $link = 'https://froiden.freshdesk.com/support/solutions/articles/43000554421-update-application-manually';
+
+        if ($module) {
+            $link = 'https://froiden.freshdesk.com/support/solutions/articles/43000569531-module-installation';
+        }
+
+        $messageUpdateManually = '<br><br> You can still update the application manually by following the documentation <a href="' . $link . '" target="_blank">Update Application Manually</a>';
+
+        if (is_null($this->appSetting->supported_until)) {
+            return Reply::error('Please provide the accurate purchase code initially, as we currently lack the correct information for the supported until date.' . $messageUpdateManually);
+        }
+
         $supportedUntil = Carbon::parse($this->appSetting->supported_until);
 
         if ($supportedUntil->isPast()) {
-            return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.');
+            return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.' . $messageUpdateManually);
         }
 
         return Reply::success('Update available.');
@@ -462,6 +478,7 @@ class UpdateScriptVersionController extends Controller
     public function notify(Request $request, $module)
     {
         $this->appSetting->update(['notify_update' => $request->status]);
+
         return Reply::success('Notification settings updated successfully.');
     }
 
