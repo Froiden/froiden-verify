@@ -9,6 +9,7 @@ class FroidenApp
 {
 
     const CODECANYON_URL = 'https://codecanyon.net/checkout/from_item/';
+    const CACHE_MINUTE = 30;
 
     public static function isLocalHost(): bool
     {
@@ -59,7 +60,7 @@ class FroidenApp
         $body = $res->getBody();
 
         $content = json_decode($body, true);
-        cache([$url => $content], now()->addMinutes(30));
+        cache([$url => $content], now()->addMinutes(self::CACHE_MINUTE));
 
         return $content;
 

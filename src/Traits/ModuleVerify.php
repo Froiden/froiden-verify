@@ -7,6 +7,7 @@ use Froiden\Envato\Helpers\FroidenApp;
 use Froiden\Envato\Helpers\Reply;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 trait ModuleVerify
 {
@@ -33,7 +34,7 @@ trait ModuleVerify
     public function isLocalHost($module)
     {
         // Check if verification is required for this module or not
-        if (!config($module.'.verification_required')) {
+        if (!config($module . '.verification_required')) {
             return true;
         }
 
@@ -65,8 +66,9 @@ trait ModuleVerify
     {
         $this->setSetting($module);
 
-        if($this->isLocalHost($module)){
+        if ($this->isLocalHost($module)) {
             $this->saveToModuleSettings($purchaseCode, $module);
+
             return Reply::successWithData('Module verified for localhost' . ' <a href="">Click to go back</a>', []);
         }
 
@@ -89,13 +91,24 @@ trait ModuleVerify
         $setting->save();
     }
 
-    public function saveSupportModuleSettings($response, $module)
+    public function saveSupportModuleSettings($response, $module): void
     {
         $this->setSetting($module);
 
-        if (isset($response['supported_until']) && ($response['supported_until'] !== $this->appSetting->supported_until)) {
-            $this->appSetting->supported_until = $response['supported_until'];
-            $this->appSetting->save();
+        $this->updateColumnIfChanged('supported_until', $response);
+        $this->updateColumnIfChanged('purchased_on', $response);
+        $this->updateColumnIfChanged('license_type', $response);
+
+    }
+
+
+    private function updateColumnIfChanged($column, $response): void
+    {
+        if (Schema::hasColumn($this->appSetting->getTable(), $column) && isset($response[$column])) {
+            if ($response[$column] !== $this->appSetting->$column) {
+                $this->appSetting->$column = $response[$column];
+                $this->appSetting->save();
+            }
         }
     }
 
@@ -108,7 +121,7 @@ trait ModuleVerify
      */
     private function getServerData($purchaseCode, $module, $savePurchaseCode = true)
     {
-        $version = File::get(module_path($module).'/version.txt');
+        $version = File::get(module_path($module) . '/version.txt');
 
         $postData = [
             'purchaseCode' => $purchaseCode,
@@ -120,6 +133,8 @@ trait ModuleVerify
 
         // Send request to froiden server to validate the license
         $response = EnvatoUpdate::curl($postData);
+
+        $this->saveSupportModuleSettings($response, $module);
 
         if ($response['status'] === 'success') {
 

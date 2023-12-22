@@ -75,6 +75,7 @@ trait AppBoot
             return true;
         }
 
+
         $response = EnvatoUpdate::curl($data);
 
         $this->saveSupportSettings($response);
@@ -126,6 +127,7 @@ trait AppBoot
     public function purchaseVerified(Request $request)
     {
         $this->setSetting();
+
         if ($request->has('purchase_code')) {
 
             $request->validate([
@@ -167,23 +169,27 @@ trait AppBoot
 
     }
 
-    public function saveSupportSettings($response)
+    public function saveSupportSettings($response): void
     {
         $this->setSetting();
-        if (isset($response['supported_until']) && ($response['supported_until'] !== $this->appSetting->supported_until)) {
-            $this->appSetting->supported_until = $response['supported_until'];
-            $this->appSetting->save();
-        }
 
-        if (Schema::hasColumn($this->appSetting->getTable(), 'license_type') && isset($response['license_type'])) {
-            if ($response['license_type'] !== $this->appSetting->license_type) {
-                $this->appSetting->license_type = $response['license_type'] ?? null;
+        $this->updateColumnIfChanged('supported_until', $response);
+        $this->updateColumnIfChanged('purchased_on', $response);
+        $this->updateColumnIfChanged('license_type', $response);
+
+        if (isset($response['review_given']) && $response['review_given'] === 'yes') {
+            file_put_contents(storage_path('reviewed'), 'reviewed');
+        }
+    }
+
+
+    private function updateColumnIfChanged($column, $response): void
+    {
+        if (Schema::hasColumn($this->appSetting->getTable(), $column) && isset($response[$column])) {
+            if ($response[$column] !== $this->appSetting->$column) {
+                $this->appSetting->$column = $response[$column];
                 $this->appSetting->save();
             }
-        }
-
-        if (isset($response['review_given']) && ($response['review_given'] == 'yes')) {
-            file_put_contents(storage_path('reviewed'), 'reviewed');
         }
     }
 
