@@ -166,7 +166,9 @@ class UpdateScriptVersionController extends Controller
     {
         // Check if support has expired
         if (Carbon::parse($this->appSetting->supported_until)->isPast()) {
-            return Reply::error('Please renew your support for one-click updates.');
+            if (is_null($module) || str_contains($module, 'Universal')) {
+                return Reply::error('Please renew your support for one-click updates.');
+            }
         }
 
         // Check user permission
@@ -453,7 +455,9 @@ class UpdateScriptVersionController extends Controller
         $supportedUntil = Carbon::parse($this->appSetting->supported_until);
 
         if ($supportedUntil->isPast()) {
-            return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.' . $messageUpdateManually);
+            if (is_null($module) || str_contains($module, 'Universal')) {
+                return Reply::error('Your support has been expired on <b>' . $supportedUntil->format(global_setting()->date_format ?? 'Y-m-d') . '</b>. <br> Please renew your support for one-click updates.' . $messageUpdateManually);
+            }
         }
 
         return Reply::success('Update available.');

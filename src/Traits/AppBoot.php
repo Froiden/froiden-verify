@@ -169,7 +169,7 @@ trait AppBoot
 
     }
 
-    public function saveSupportSettings($response): void
+    public function saveSupportSettings($response)
     {
         $this->setSetting();
 
