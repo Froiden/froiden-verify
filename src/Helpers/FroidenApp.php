@@ -55,15 +55,25 @@ class FroidenApp
             return cache($url);
         }
 
-        $client = new Client();
-        $res = $client->request($method, $url, ['verify' => false]);
-        $body = $res->getBody();
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
 
-        $content = json_decode($body, true);
-        cache([$url => $content], now()->addMinutes(self::CACHE_MINUTE));
+            curl_setopt($ch, CURLOPT_POST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-        return $content;
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $server_output = curl_exec($ch);
+            $response = json_decode($server_output, true);
+            curl_close($ch);
 
+            cache([$url => $response], now()->addMinutes(self::CACHE_MINUTE));
+
+            return $response;
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 
     public static function buyExtendedUrl($envatoId): string
