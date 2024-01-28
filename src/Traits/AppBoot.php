@@ -81,6 +81,7 @@ trait AppBoot
 
         if ($response && $response['status'] == 'success') {
             $this->saveLastVerifiedAt($this->appSetting->purchase_code);
+
             return true;
         }
 
@@ -88,7 +89,7 @@ trait AppBoot
             $this->saveLastVerifiedAt($this->appSetting->purchase_code);
             $this->saveToSettings($this->appSetting->purchase_code);
 
-            return Reply::success('Your purchase code is verified', null, ['server' => $response]);
+            return Reply::success('Your purchase code is verified', ['server' => $response]);
         }
 
         return false;
