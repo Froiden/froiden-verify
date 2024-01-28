@@ -80,9 +80,10 @@ trait AppBoot
 
         $this->saveSupportSettings($response);
 
-        $this->saveLastVerifiedAt($this->appSetting->purchase_code);
-
         if ($response && $response['status'] == 'success') {
+
+            $this->saveLastVerifiedAt($this->appSetting->purchase_code);
+
             return true;
         }
 
@@ -343,6 +344,7 @@ trait AppBoot
 
             return response()->json('System is down');
         }
+
         return response()->json('No action');
 
     }
