@@ -77,18 +77,15 @@ trait AppBoot
 
 
         $response = EnvatoUpdate::curl($data);
-
         $this->saveSupportSettings($response);
 
         if ($response && $response['status'] == 'success') {
-
             $this->saveLastVerifiedAt($this->appSetting->purchase_code);
-
             return true;
         }
 
         if (is_null($response)) {
-
+            $this->saveLastVerifiedAt($this->appSetting->purchase_code);
             $this->saveToSettings($this->appSetting->purchase_code);
 
             return Reply::success('Your purchase code is verified', null, ['server' => $response]);
