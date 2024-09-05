@@ -127,13 +127,25 @@ trait AppBoot
     {
         $this->setSetting();
 
+        $email = null;
+        $consent = false;
+
         if ($request->has('purchase_code')) {
 
             $request->validate([
                 'purchase_code' => 'required|max:80',
+                'email' => 'sometimes|email|max:100',
             ]);
 
-            return $this->getServerData($request->purchase_code);
+            if ($request->has('purchase_code')) {
+                $email = $request->email;
+            }
+
+            if ($request->has('consent')) {
+                $consent = true;
+            }
+
+            return $this->getServerData($request->purchase_code, email: $email, consent: $consent);
         }
 
         return $this->getServerData($this->appSetting->purchase_code, false);
@@ -199,13 +211,15 @@ trait AppBoot
      * @return mixed
      * @throws FileNotFoundException
      */
-    private function getServerData($purchaseCode, $savePurchaseCode = true)
+    private function getServerData($purchaseCode, $savePurchaseCode = true, $email = null, $consent = false)
     {
         $version = File::get(public_path('version.txt'));
 
         $postData = [
             'purchaseCode' => $purchaseCode,
             'domain' => \request()->getHost(),
+            'consent_email' => $email,
+            'consent' => $consent,
             'itemId' => config('froiden_envato.envato_item_id'),
             'appUrl' => urlencode(url()->full()),
             'version' => $version,
