@@ -202,7 +202,7 @@ class UpdateScriptVersionController extends Controller
             }
 
             // Clear cache when the update button is clicked
-            $this->configClear();
+            // $this->configClear();
 
             // Return success response with download message
             return Reply::successWithData('Starting Download...', ['description' => $lastVersionInfo['description']]);
