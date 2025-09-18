@@ -234,6 +234,7 @@ trait AppBoot
 
             if ($savePurchaseCode) {
                 $this->saveToSettings($purchaseCode);
+                $this->saveLastVerifiedAt($purchaseCode);
             }
 
             return Reply::successWithData($response['message'] . ' <a href="' . route(config('froiden_envato.redirectRoute')) . '">Click to go back</a>', ['server' => $response]);
@@ -242,6 +243,7 @@ trait AppBoot
         if (is_null($response) && $savePurchaseCode) {
 
             $this->saveToSettings($purchaseCode);
+            $this->saveLastVerifiedAt($purchaseCode);
 
             return Reply::success('Your purchase code is verified', null, ['server' => $response]);
         }
