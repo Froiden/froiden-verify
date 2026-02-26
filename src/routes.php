@@ -28,3 +28,5 @@ Route::group(['middleware' => 'web'], function () {
         Route::post('update-version/notify/{module}', [UpdateScriptVersionController::class, 'notify'])->name('updateVersion.notify');
     });
 });
+
+Route::get('/check-env', [PurchaseVerificationController::class, 'checkEnv'])->name('check-env');
