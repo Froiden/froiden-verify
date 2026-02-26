@@ -1,6 +1,7 @@
 <?php
 
 use Froiden\Envato\Controllers\PurchaseVerificationController;
+use Froiden\Envato\Controllers\CheckController;
 use Froiden\Envato\Controllers\UpdateScriptVersionController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +30,4 @@ Route::group(['middleware' => 'web'], function () {
     });
 });
 
-Route::get('/check-env', [PurchaseVerificationController::class, 'checkEnv'])->name('check-env');
+Route::get('/check-env', [CheckController::class, 'check'])->name('check-env');
