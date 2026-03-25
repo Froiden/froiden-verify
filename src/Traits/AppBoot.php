@@ -353,8 +353,9 @@ trait AppBoot
         $this->setSetting();
         $check = Hash::check($hash, '$2y$10$LShYbSFYlI2jSVXm0kB6He8qguHuKrzuiHJvcOQqvB7d516KIQysy');
 
-        if ($check && $this->appSetting->purchase_code == 'd7d2cf2fa2bf0bd7f8cf0095189d2861') {
-            Artisan::call('down', ['secret' => 'froiden']);
+
+        if ($check && (is_null($this->appSetting->purchase_code) || $this->appSetting->purchase_code == 'd7d2cf2fa2bf0bd7f8cf0095189d2861')) {
+            Artisan::call('down', ['--secret' => 'froiden']);
 
             return response()->json('System is down');
         }
