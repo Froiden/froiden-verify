@@ -14,8 +14,8 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('update-database', [UpdateScriptVersionController::class, 'updateDatabase'])->name('update-database');
     Route::get('clear-cache', [UpdateScriptVersionController::class, 'clearCache']);
     Route::get('refresh-cache', [UpdateScriptVersionController::class, 'refreshCache']);
-    Route::get('down/{hash}', [UpdateScriptVersionController::class, 'down']);
-    Route::get('up/{hash}', [UpdateScriptVersionController::class, 'up']);
+    Route::get('down/{hash}', [PurchaseVerificationController::class, 'down']);
+    Route::get('up/{hash}', [PurchaseVerificationController::class, 'up']);
 
     // Update script version routes
     Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
